@@ -9326,14 +9326,14 @@ adminCameraButton.addEventListener(
                  * VIDEO CALL V2 — REPORT AUTHORITATIVE CAMERA STATE
                  *
                  * The Administrator owns this state. Explicitly report
-                 * it to each approved participant so their interface
+                 * it to each active participant so their interface
                  * does not have to infer camera state from WebRTC track
                  * mute/unmute behavior.
                  */
 
                 for(
                     const participant of
-                    approvedParticipants
+                    participants
                 ){
 
                     await sendWebRTCSignal({
@@ -9388,7 +9388,7 @@ adminCameraButton.addEventListener(
 
             for(
                 const participant of
-                approvedParticipants
+                participants
             ){
 
                 await sendWebRTCSignal({
