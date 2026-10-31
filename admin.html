@@ -2502,9 +2502,29 @@ body.administratorMode #header {
                     Chat
                 </div>
 
-                <div class="videoCallWorkspacePlaceholder">
-                    Video Call chat will appear here.
+                <!--
+                    VIDEO CALL V2 — ADMINISTRATOR CHAT WORKSPACE
+
+                    The existing authoritative Administrator chat
+                    recipient selector and conversation history now
+                    live directly inside the collaboration workspace.
+
+                    The message composer remains permanently available
+                    in the footer below this workspace.
+                -->
+
+                <div class="adminChatRecipients">
+                    <div class="chatRecipientsTitle">
+                        Send to:
+                    </div>
+
+                    <div id="adminChatRecipients"></div>
                 </div>
+
+                <div
+                    id="adminChatMessages"
+                    class="chatMessages"
+                ></div>
 
             </section>
 
@@ -2759,21 +2779,9 @@ body.administratorMode #header {
 <!-- =======================================================
      ADMIN CHAT PANEL
 ======================================================== -->
-<aside id="adminChatPanel">
-    <div class="chatPanelHeader">
-        <strong>Chat</strong>
-        <button id="closeAdminChat" class="chatCloseButton">✕</button>
-    </div>
-    <div class="adminChatRecipients">
-        <div class="chatRecipientsTitle">Send to:</div>
-        <div id="adminChatRecipients"></div>
-    </div>
-    <div id="adminChatMessages" class="chatMessages"></div>
-</aside>
-
 <!-- =======================================================
      ADMIN PANEL
-======================================================== -->
+     ======================================================== -->
 
 <aside id="adminPanel">
 
