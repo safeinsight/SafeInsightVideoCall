@@ -2429,8 +2429,15 @@ body.mirrorMode #app {
                             class="videoCallParticipantTile"
                         >
 
-                            <div class="videoCallParticipantWaiting">
-                                Waiting for Administrator Video
+                            <div
+                                id="participantAdminLogoContainer"
+                                class="adminLogoContainer"
+                            >
+                                <img
+                                    src="safe-insight-logo.png"
+                                    class="adminLogo"
+                                    alt="Safe Insight"
+                                >
                             </div>
 
                             <div class="videoCallParticipantTileLabel">
@@ -6100,16 +6107,75 @@ async function createParticipantPeerConnectionForViewer(
 
             if(event.track.kind === "video"){
 
-                const waitingMessage =
+                const administratorLogo =
                     participantAdminTile.querySelector(
-                        ".videoCallParticipantWaiting"
+                        "#participantAdminLogoContainer"
                     );
 
 
-                if(waitingMessage){
+                const showAdministratorVideo =
+                    function(){
 
-                    waitingMessage.style.display =
-                        "none";
+                        if(administratorLogo){
+
+                            administratorLogo.classList.add(
+                                "hidden"
+                            );
+
+                        }
+
+
+                        administratorRemoteVideo.classList.remove(
+                            "hidden"
+                        );
+
+                    };
+
+
+                const showAdministratorLogo =
+                    function(){
+
+                        administratorRemoteVideo.classList.add(
+                            "hidden"
+                        );
+
+
+                        if(administratorLogo){
+
+                            administratorLogo.classList.remove(
+                                "hidden"
+                            );
+
+                        }
+
+                    };
+
+
+                event.track.addEventListener(
+                    "unmute",
+                    showAdministratorVideo
+                );
+
+
+                event.track.addEventListener(
+                    "mute",
+                    showAdministratorLogo
+                );
+
+
+                event.track.addEventListener(
+                    "ended",
+                    showAdministratorLogo
+                );
+
+
+                if(!event.track.muted){
+
+                    showAdministratorVideo();
+
+                }else{
+
+                    showAdministratorLogo();
 
                 }
 
