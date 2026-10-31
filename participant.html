@@ -6343,6 +6343,108 @@ async function handleParticipantWebRTCSignal(
 
 
     /*
+     * VIDEO CALL V2 — AUTHORITATIVE ADMINISTRATOR CAMERA STATE
+     *
+     * WebRTC track mute/unmute events describe transport behavior.
+     * They are not the authoritative source for whether the
+     * Administrator intentionally turned the camera on or off.
+     *
+     * The Administrator therefore explicitly reports its current
+     * camera state. The participant uses that state to immediately
+     * choose between the live Administrator video and the
+     * Safe Insight logo.
+     */
+
+    if(
+        signal.type ===
+        "administrator-camera-state"
+    ){
+
+        const administratorLogo =
+            document.getElementById(
+                "participantAdminLogoContainer"
+            );
+
+        const administratorRemoteVideo =
+            participantAdminTile.querySelector(
+                "video"
+            );
+
+
+        if(signal.cameraOn){
+
+            if(administratorLogo){
+
+                administratorLogo.classList.add(
+                    "hidden"
+                );
+
+            }
+
+
+            if(administratorRemoteVideo){
+
+                administratorRemoteVideo.classList.remove(
+                    "hidden"
+                );
+
+                administratorRemoteVideo
+                    .play()
+                    .catch(
+                        function(error){
+
+                            if(
+                                error.name !==
+                                "AbortError"
+                            ){
+
+                                console.warn(
+                                    "Administrator video resume:",
+                                    error
+                                );
+
+                            }
+
+                        }
+                    );
+
+            }
+
+        }else{
+
+            if(administratorRemoteVideo){
+
+                administratorRemoteVideo.classList.add(
+                    "hidden"
+                );
+
+            }
+
+
+            if(administratorLogo){
+
+                administratorLogo.classList.remove(
+                    "hidden"
+                );
+
+            }
+
+        }
+
+
+        console.log(
+            "ADMINISTRATOR CAMERA STATE APPLIED:",
+            signal.cameraOn
+                ? "ON"
+                : "OFF"
+        );
+
+
+        return;
+    }
+
+
+    /*
      * Administrator media control.
      *
      * Preserve the existing authorized control workflow
