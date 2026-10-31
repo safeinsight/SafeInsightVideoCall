@@ -1895,15 +1895,16 @@ body.mirrorMode #app {
 /* =========================================================
    VIDEO CALL V2 — PARTICIPANT CALL SURFACE
 
-   The participant experience is now organized around the same
-   four-person call used by the administrator:
+   The participant experience is a traditional four-person
+   video call with a dedicated collaboration workspace:
 
-       Administrator | Participant 1
-       Participant 2 | Participant 3
+       LEFT 50%                    RIGHT 50%
+       Four-person video           Chat
+                                   Screen Sharing
 
-   Existing participant camera, microphone, chat, and training
-   elements remain in the DOM so the proven V1 behavior is
-   preserved while V2 remote media is added incrementally.
+   Existing participant camera, microphone, chat, admission,
+   and signaling behavior remain intact while V2 remote media
+   and screen sharing are added incrementally.
 ========================================================= */
 
 #participantView {
@@ -1914,6 +1915,7 @@ body.mirrorMode #app {
     min-height: 0;
 
     display: none;
+    flex-direction: row;
 
     gap: 0;
     padding: 0;
@@ -1930,10 +1932,7 @@ body.mirrorMode #app {
     min-width: 0;
     min-height: 0;
 
-    display: flex;
-    flex-direction: column;
-
-    gap: 0;
+    display: block;
 
     background: #000;
 
@@ -1942,9 +1941,7 @@ body.mirrorMode #app {
 
 #participantVideoPanel {
     width: 100%;
-    height: 50%;
-
-    flex: 0 0 50%;
+    height: 100%;
 
     min-width: 0;
     min-height: 0;
@@ -2071,24 +2068,12 @@ body.mirrorMode #app {
     pointer-events: auto;
 }
 
-#participantChatPanel {
-    width: 100%;
-    height: 50%;
 
-    flex: 0 0 50%;
+/* =========================================================
+   VIDEO CALL V2 — PARTICIPANT COLLABORATION WORKSPACE
+========================================================= */
 
-    min-width: 0;
-    min-height: 0;
-
-    border: 0;
-    border-radius: 0;
-
-    border-top: 1px solid #333;
-
-    background: #151515;
-}
-
-#participantBrowser {
+#participantWorkspace {
     width: 50%;
     height: 100%;
 
@@ -2097,10 +2082,77 @@ body.mirrorMode #app {
     min-width: 0;
     min-height: 0;
 
+    display: flex;
+    flex-direction: column;
+
+    background: #111;
+}
+
+#participantChatPanel {
+    width: 100%;
+    height: 50%;
+
+    flex: 1 1 50%;
+
+    min-width: 0;
+    min-height: 0;
+
     border: 0;
     border-radius: 0;
 
+    border-bottom: 1px solid #333;
+
     background: #151515;
+}
+
+#participantScreenShareWorkspace {
+    width: 100%;
+    height: 50%;
+
+    flex: 1 1 50%;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #151515;
+}
+
+.participantWorkspaceHeader {
+    flex: 0 0 auto;
+
+    padding: 12px 16px;
+
+    background: #000;
+
+    border-bottom: 1px solid #333;
+
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#participantScreenShareStage {
+    flex: 1;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    color: #888;
+
+    text-align: center;
+    font-size: 14px;
+}
+
+#participantBrowser {
+    display: none !important;
 }
 
 </style>
@@ -2353,178 +2405,215 @@ body.mirrorMode #app {
 
         <section id="participantView">
 
-<div id="participantLeft">
 
-    <div id="participantVideoPanel" class="participantPanel">
+            <!-- ===================================================
+                 VIDEO CALL V2 — FOUR-PERSON VIDEO
+            ==================================================== -->
 
-        <div id="participantVideoStage">
+            <div id="participantLeft">
+
+                <div
+                    id="participantVideoPanel"
+                    class="participantPanel"
+                >
+
+                    <div id="participantVideoStage">
 
 
-            <!-- ===============================================
-                 VIDEO CALL V2 — ADMINISTRATOR
-            ================================================ -->
+                        <!-- =======================================
+                             ADMINISTRATOR
+                        ======================================== -->
 
-            <div
-                id="participantAdminTile"
-                class="videoCallParticipantTile"
-            >
+                        <div
+                            id="participantAdminTile"
+                            class="videoCallParticipantTile"
+                        >
 
-                <div class="videoCallParticipantWaiting">
-                    Waiting for Administrator Video
-                </div>
+                            <div class="videoCallParticipantWaiting">
+                                Waiting for Administrator Video
+                            </div>
 
-                <div class="videoCallParticipantTileLabel">
-                    Administrator
+                            <div class="videoCallParticipantTileLabel">
+                                Administrator
+                            </div>
+
+                        </div>
+
+
+                        <!-- =======================================
+                             LOCAL PARTICIPANT
+                        ======================================== -->
+
+                        <div
+                            id="participantLocalTile"
+                            class="videoCallParticipantTile"
+                        >
+
+                            <video
+                                id="participantLocalVideo"
+                                autoplay
+                                playsinline
+                                muted
+                            ></video>
+
+                            <div id="participantVideoPlaceholder">
+                                Camera Off
+                            </div>
+
+                            <div class="videoCallParticipantTileLabel">
+                                You
+                            </div>
+
+
+                            <div id="participantVideoControls">
+
+                                <button
+                                    class="toolbarButton"
+                                    id="micButtonParticipant"
+                                >
+                                    🎤 Mic
+                                </button>
+
+                                <button
+                                    class="toolbarButton"
+                                    id="cameraButtonParticipant"
+                                >
+                                    📹 Camera ON
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="toolbarButton redButton"
+                                    id="scheduleButtonParticipant"
+                                    onclick="window.open('https://apps.safeinsight.net/booking/?location=safe-insight&instructor=si-webs','_blank')"
+                                >
+                                    📅 Schedule
+                                </button>
+
+                                <button
+                                    class="toolbarButton redButton"
+                                    id="leaveButtonParticipant"
+                                >
+                                    EXIT ROOM
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =======================================
+                             REMOTE PARTICIPANT 2
+                        ======================================== -->
+
+                        <div
+                            id="participantRemoteTile2"
+                            class="videoCallParticipantTile"
+                        >
+
+                            <div class="videoCallParticipantWaiting">
+                                Waiting for Participant
+                            </div>
+
+                            <div class="videoCallParticipantTileLabel">
+                                Participant
+                            </div>
+
+                        </div>
+
+
+                        <!-- =======================================
+                             REMOTE PARTICIPANT 3
+                        ======================================== -->
+
+                        <div
+                            id="participantRemoteTile3"
+                            class="videoCallParticipantTile"
+                        >
+
+                            <div class="videoCallParticipantWaiting">
+                                Waiting for Participant
+                            </div>
+
+                            <div class="videoCallParticipantTileLabel">
+                                Participant
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
                 </div>
 
             </div>
 
 
-            <!-- ===============================================
-                 VIDEO CALL V2 — LOCAL PARTICIPANT
-            ================================================ -->
+            <!-- ===================================================
+                 VIDEO CALL V2 — COLLABORATION WORKSPACE
+            ==================================================== -->
 
-            <div
-                id="participantLocalTile"
-                class="videoCallParticipantTile"
-            >
-
-                <video
-                    id="participantLocalVideo"
-                    autoplay
-                    playsinline
-                    muted
-                ></video>
-
-                <div id="participantVideoPlaceholder">
-                    Camera Off
-                </div>
-
-                <div class="videoCallParticipantTileLabel">
-                    You
-                </div>
+            <div id="participantWorkspace">
 
 
-                <div id="participantVideoControls">
+                <!-- ===============================================
+                     CHAT
+                ================================================ -->
 
-                    <button
-                        class="toolbarButton"
-                        id="micButtonParticipant"
-                    >
-                        🎤 Mic
-                    </button>
+                <div
+                    id="participantChatPanel"
+                    class="participantPanel"
+                >
 
-                    <button
-                        class="toolbarButton"
-                        id="cameraButtonParticipant"
-                    >
-                        📹 Camera ON
-                    </button>
+                    <div class="participantWorkspaceHeader">
+                        Chat
+                    </div>
 
-                    <button
-                        type="button"
-                        class="toolbarButton redButton"
-                        id="scheduleButtonParticipant"
-                        onclick="window.open('https://apps.safeinsight.net/booking/?location=safe-insight&instructor=si-webs','_blank')"
-                    >
-                        📅 Schedule
-                    </button>
+                    <div
+                        id="participantChatMessages"
+                        class="chatMessages"
+                    ></div>
 
-                    <button
-                        class="toolbarButton redButton"
-                        id="leaveButtonParticipant"
-                    >
-                        EXIT ROOM
-                    </button>
+                    <div class="chatComposer">
+
+                        <input
+                            id="participantChatInput"
+                            type="text"
+                            maxlength="500"
+                            placeholder="Type a message..."
+                        >
+
+                        <button
+                            id="participantChatSend"
+                            class="chatSendButton"
+                        >
+                            Send
+                        </button>
+
+                    </div>
 
                 </div>
+
+
+                <!-- ===============================================
+                     SCREEN SHARING
+                ================================================ -->
+
+                <div id="participantScreenShareWorkspace">
+
+                    <div class="participantWorkspaceHeader">
+                        Screen Sharing
+                    </div>
+
+                    <div id="participantScreenShareStage">
+                        Shared screen content will appear here.
+                    </div>
+
+                </div>
+
 
             </div>
 
-
-            <!-- ===============================================
-                 VIDEO CALL V2 — REMOTE PARTICIPANT 2
-            ================================================ -->
-
-            <div
-                id="participantRemoteTile2"
-                class="videoCallParticipantTile"
-            >
-
-                <div class="videoCallParticipantWaiting">
-                    Waiting for Participant
-                </div>
-
-                <div class="videoCallParticipantTileLabel">
-                    Participant
-                </div>
-
-            </div>
-
-
-            <!-- ===============================================
-                 VIDEO CALL V2 — REMOTE PARTICIPANT 3
-            ================================================ -->
-
-            <div
-                id="participantRemoteTile3"
-                class="videoCallParticipantTile"
-            >
-
-                <div class="videoCallParticipantWaiting">
-                    Waiting for Participant
-                </div>
-
-                <div class="videoCallParticipantTileLabel">
-                    Participant
-                </div>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-    <div id="participantChatPanel" class="participantPanel">
-        
-        <div id="participantChatMessages" class="chatMessages"></div>
-
-        <div class="chatComposer">
-            <input
-                id="participantChatInput"
-                type="text"
-                maxlength="500"
-                placeholder="Type a message..."
-            >
-
-            <button
-                id="participantChatSend"
-                class="chatSendButton"
-            >
-                Send
-            </button>
-        </div>
-    </div>
-
-</div>
-
-<div id="participantBrowser">
-
-
-
-<div id="browserFrameContainer">
-
-    <iframe
-        id="participantBrowserFrame"
-        src="https://safeinsight.acadio.com/auth/signin?go=/dashboard"
-        title="Training Browser"
-        allow="camera; microphone; fullscreen"
-    ></iframe>
-
-</div>
-
-</div>
 
         </section>
 
