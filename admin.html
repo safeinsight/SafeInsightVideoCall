@@ -4057,6 +4057,26 @@ function initializeAdministrator(){
     updateAdministratorMicButton();
     updateAdministratorMicStatus();
 
+
+    /*
+     * VIDEO CALL V2 — INITIAL CHAT WORKSPACE
+     *
+     * Chat is the default collaboration workspace.
+     *
+     * Establish Chat All Users as the initial conversation
+     * and render the authoritative recipient selector and
+     * conversation immediately when Administrator mode starts.
+     *
+     * renderParticipants() will continue keeping this synchronized
+     * whenever the active participant collection changes.
+     */
+
+    openAdminChatThread =
+        "ALL";
+
+    renderAdminChatRecipients();
+    renderAdminChatMessages();
+
 }
 
 /* =========================================================
