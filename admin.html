@@ -3936,6 +3936,16 @@ customAlertOk.addEventListener(
                 "aria-hidden",
                 "true"
             );
+
+            /*
+             * A normal notification has now been acknowledged.
+             *
+             * Restore the normal browser-tab title so the yellow
+             * notification indicator does not remain after the
+             * Administrator has viewed and dismissed the alert.
+             */
+
+            clearBrowserTabAlert();
         }
 
     }
