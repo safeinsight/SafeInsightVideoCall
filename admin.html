@@ -6774,28 +6774,87 @@ async function createAdminPeerConnection(
 
 
     /*
-     * Tell WebRTC that this viewer wants to RECEIVE
-     * participant video and audio.
+     * VIDEO CALL V2 — BIDIRECTIONAL ADMIN/PARTICIPANT MEDIA
      *
-     * The administrator does NOT send media to the
-     * participant through this connection.
+     * This same peer connection now carries media both ways:
+     *
+     * Participant -> Administrator
+     * Administrator -> Participant
+     *
+     * Permanent sender slots are negotiated even when the
+     * Administrator camera or microphone is currently OFF.
+     * Existing Admin controls can therefore attach/remove tracks
+     * later without creating a second WebRTC connection.
      */
 
-    peerConnection.addTransceiver(
-        "video",
-        {
-            direction:
-                "recvonly"
-        }
-    );
+    const administratorVideoTransceiver =
+        peerConnection.addTransceiver(
+            "video",
+            {
+                direction:
+                    "sendrecv"
+            }
+        );
 
-    peerConnection.addTransceiver(
-        "audio",
-        {
-            direction:
-                "recvonly"
-        }
-    );
+    const administratorAudioTransceiver =
+        peerConnection.addTransceiver(
+            "audio",
+            {
+                direction:
+                    "sendrecv"
+            }
+        );
+
+
+    peerConnection.administratorVideoSender =
+        administratorVideoTransceiver.sender;
+
+    peerConnection.administratorAudioSender =
+        administratorAudioTransceiver.sender;
+
+
+    /*
+     * If Administrator media is already active when this
+     * participant connects, publish those tracks immediately.
+     */
+
+    const currentAdministratorVideoTrack =
+        administratorCameraOn
+            ? (
+                adminVideo.srcObject
+                    ?.getVideoTracks()
+                    ?.[0] ||
+                null
+            )
+            : null;
+
+    const currentAdministratorAudioTrack =
+        administratorMicOn
+            ? (
+                localStream
+                    ?.getAudioTracks()
+                    ?.[0] ||
+                null
+            )
+            : null;
+
+
+    if(currentAdministratorVideoTrack){
+
+        await administratorVideoTransceiver.sender.replaceTrack(
+            currentAdministratorVideoTrack
+        );
+
+    }
+
+
+    if(currentAdministratorAudioTrack){
+
+        await administratorAudioTransceiver.sender.replaceTrack(
+            currentAdministratorAudioTrack
+        );
+
+    }
 
 
     /*
@@ -9067,6 +9126,10 @@ async function synchronizeAdministratorCameraToAuditors(){
         [];
 
 
+    /*
+     * Preserve the existing Auditor publication path.
+     */
+
     administratorSourcePeerConnections.forEach(
         peerConnection => {
 
@@ -9081,6 +9144,36 @@ async function synchronizeAdministratorCameraToAuditors(){
                         videoTrack
                     )
                 );
+
+            }
+
+        }
+    );
+
+
+    /*
+     * VIDEO CALL V2
+     *
+     * Publish the same Administrator camera state to every
+     * connected Participant through the existing bidirectional
+     * Admin <-> Participant connection.
+     */
+
+    adminPeerConnections.forEach(
+        peerConnection => {
+
+            const sender =
+                peerConnection
+                    .administratorVideoSender;
+
+            if(sender){
+
+                replacements.push(
+                    sender.replaceTrack(
+                        videoTrack
+                    )
+                );
+
             }
 
         }
@@ -9092,13 +9185,15 @@ async function synchronizeAdministratorCameraToAuditors(){
         await Promise.allSettled(
             replacements
         );
+
     }
+
 }
 
 
 /*
  * Synchronize the Administrator's current microphone track
- * into every Auditor connection.
+ * into every Auditor and Video Call Participant connection.
  */
 
 async function synchronizeAdministratorMicrophoneToAuditors(){
@@ -9118,6 +9213,10 @@ async function synchronizeAdministratorMicrophoneToAuditors(){
         [];
 
 
+    /*
+     * Preserve the existing Auditor publication path.
+     */
+
     administratorSourcePeerConnections.forEach(
         peerConnection => {
 
@@ -9132,6 +9231,35 @@ async function synchronizeAdministratorMicrophoneToAuditors(){
                         audioTrack
                     )
                 );
+
+            }
+
+        }
+    );
+
+
+    /*
+     * VIDEO CALL V2
+     *
+     * Publish the Administrator microphone state to every
+     * connected Participant through the same WebRTC connection.
+     */
+
+    adminPeerConnections.forEach(
+        peerConnection => {
+
+            const sender =
+                peerConnection
+                    .administratorAudioSender;
+
+            if(sender){
+
+                replacements.push(
+                    sender.replaceTrack(
+                        audioTrack
+                    )
+                );
+
             }
 
         }
@@ -9143,7 +9271,9 @@ async function synchronizeAdministratorMicrophoneToAuditors(){
         await Promise.allSettled(
             replacements
         );
+
     }
+
 }
 
 
