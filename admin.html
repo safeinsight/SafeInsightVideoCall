@@ -7730,16 +7730,18 @@ function attachRemoteParticipantStream(
         true;
 
     /*
-     * Participant audio is intentionally muted here because
-     * this element is currently being used as the
-     * administrator's participant video display.
+     * VIDEO CALL V2 — PARTICIPANT AUDIO
      *
-     * Preserve the existing behavior.
+     * This remote media element carries both the Participant's
+     * video and microphone audio. It must remain unmuted so the
+     * Administrator can hear the Participant.
+     *
+     * The Administrator's own local preview remains separately
+     * muted to prevent local microphone feedback.
      */
 
     video.muted =
-        true;
-
+        false;
 
     /*
      * Do not treat receipt of audio alone as proof that
