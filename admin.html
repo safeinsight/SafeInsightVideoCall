@@ -2602,20 +2602,16 @@ body.administratorMode #header {
             <!--
                 VIDEO CALL V2 — PRIMARY CALL CONTROLS
 
+                Camera and microphone controls remain first for
+                immediate access to the Administrator's own media.
+
                 Chat returns the collaboration workspace to its
                 default Chat view.
 
-                Shared View will become visible only while a screen
-                share is active. It is navigation to an existing
-                share, not the action that starts sharing.
+                Shared View becomes visible only while a screen
+                share is active. It navigates to the existing shared
+                screen and does not start a new screen share.
             -->
-
-            <button
-                class="toolbarButton redButton"
-                id="adminChatButton"
-            >
-                Chat
-            </button>
 
             <button
                 class="toolbarButton"
@@ -2630,6 +2626,13 @@ body.administratorMode #header {
                 style="background-color:#777;"
             >
                 🔇 Mic OFF
+            </button>
+
+            <button
+                class="toolbarButton redButton"
+                id="adminChatButton"
+            >
+                Chat
             </button>
 
             <button
