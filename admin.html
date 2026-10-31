@@ -10474,7 +10474,17 @@ function renderParticipants(){
         }
     );
 
+    /*
+     * Keep the Administrator's visible chat workspace synchronized
+     * whenever the active participant collection is rendered.
+     *
+     * Recipient rendering and conversation rendering belong together:
+     * the participant list determines both which conversations are
+     * available and which messages belong in the current view.
+     */
+
     renderAdminChatRecipients();
+    renderAdminChatMessages();
 }
 
 
