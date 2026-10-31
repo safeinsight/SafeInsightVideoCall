@@ -9317,10 +9317,42 @@ adminCameraButton.addEventListener(
 
                 /*
                  * Publish the newly acquired camera track to every
-                 * currently connected Auditor viewer.
+                 * currently connected viewer.
                  */
 
                 await synchronizeAdministratorCameraToAuditors();
+
+                /*
+                 * VIDEO CALL V2 — REPORT AUTHORITATIVE CAMERA STATE
+                 *
+                 * The Administrator owns this state. Explicitly report
+                 * it to each approved participant so their interface
+                 * does not have to infer camera state from WebRTC track
+                 * mute/unmute behavior.
+                 */
+
+                for(
+                    const participant of
+                    approvedParticipants
+                ){
+
+                    await sendWebRTCSignal({
+
+                        type:
+                            "administrator-camera-state",
+
+                        senderId:
+                            administratorViewerId,
+
+                        targetId:
+                            participant.id,
+
+                        cameraOn:
+                            true
+
+                    });
+
+                }
 
                 updateAdminCameraButton(
                     "Cam ON"
@@ -9341,7 +9373,7 @@ adminCameraButton.addEventListener(
         }else{
 
             /*
-             * Remove the camera from Auditor connections BEFORE
+             * Remove the camera from viewer connections BEFORE
              * stopping the physical camera track.
              */
 
@@ -9349,6 +9381,33 @@ adminCameraButton.addEventListener(
                 false;
 
             await synchronizeAdministratorCameraToAuditors();
+
+            /*
+             * VIDEO CALL V2 — REPORT AUTHORITATIVE CAMERA STATE
+             */
+
+            for(
+                const participant of
+                approvedParticipants
+            ){
+
+                await sendWebRTCSignal({
+
+                    type:
+                        "administrator-camera-state",
+
+                    senderId:
+                        administratorViewerId,
+
+                    targetId:
+                        participant.id,
+
+                    cameraOn:
+                        false
+
+                });
+
+            }
 
 
             /*
