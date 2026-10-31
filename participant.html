@@ -2070,7 +2070,209 @@ body.mirrorMode #app {
 
 
 /* =========================================================
-   VIDEO CALL V2 — PARTICIPANT COLLABORATION WORKSPACE
+   VIDEO CALL V2 — PARTICIPANT CALL SURFACE
+
+   Desktop participant experience:
+
+       HEADER
+       -------------------------------------------------------
+       LEFT 50%                    RIGHT 50%
+       Four-person video           Collaboration Workspace
+
+       FOOTER
+       -------------------------------------------------------
+       Camera / Mic / Chat         Permanent Chat Composer
+       / Shared View
+
+   Chat is the default collaboration workspace.
+
+   Shared View temporarily replaces Chat only while the
+   participant chooses to view an active shared screen.
+
+   Existing participant admission, media, chat, signaling,
+   and authorization behavior remain authoritative.
+========================================================= */
+
+body.participantMode #header {
+    width: 100%;
+}
+
+#participantHeaderActions {
+    display: none;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-left: auto;
+}
+
+body.participantMode #participantHeaderActions {
+    display: flex;
+}
+
+#participantHeaderActions .toolbarButton {
+    min-width: 120px;
+}
+
+
+/* =========================================================
+   PARTICIPANT MAIN VIEW
+========================================================= */
+
+#participantView {
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: none;
+    flex-direction: row;
+
+    gap: 0;
+    padding: 0;
+
+    background: #000;
+}
+
+
+/* =========================================================
+   LEFT HALF — FOUR-PERSON VIDEO
+========================================================= */
+
+#participantLeft {
+    width: 50%;
+    height: 100%;
+
+    flex: 0 0 50%;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: block;
+
+    background: #000;
+
+    border-right: 1px solid #333;
+}
+
+#participantVideoPanel {
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    border: 0;
+    border-radius: 0;
+
+    background: #000;
+}
+
+#participantVideoStage {
+    width: 100%;
+    height: 100%;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+
+    background: #333;
+
+    gap: 1px;
+}
+
+.videoCallParticipantTile {
+    position: relative;
+
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    background: #090909;
+}
+
+.videoCallParticipantTile video {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+
+    background: #111;
+}
+
+.videoCallParticipantTileLabel {
+    position: absolute;
+
+    left: 8px;
+    bottom: 8px;
+
+    z-index: 6;
+
+    padding: 5px 9px;
+
+    border-radius: 4px;
+
+    background: rgba(0,0,0,.75);
+
+    color: #fff;
+
+    font-size: 14px;
+}
+
+.videoCallParticipantWaiting {
+    color: #888;
+
+    font-size: 16px;
+}
+
+#participantLocalVideo {
+    position: static;
+
+    left: auto;
+    top: auto;
+
+    transform: none;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    background: #111;
+
+    z-index: 1;
+}
+
+#participantVideoPlaceholder {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 2;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #111;
+
+    color: #aaa;
+}
+
+#participantLocalTile {
+    position: relative;
+}
+
+
+/* =========================================================
+   RIGHT HALF — COLLABORATION WORKSPACE
 ========================================================= */
 
 #participantWorkspace {
@@ -2088,11 +2290,24 @@ body.mirrorMode #app {
     background: #111;
 }
 
-#participantChatPanel {
+.participantWorkspaceSection {
     width: 100%;
-    height: 50%;
+    height: 100%;
 
-    flex: 1 1 50%;
+    min-width: 0;
+    min-height: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #151515;
+}
+
+#participantChatPanel {
+    flex: 1 1 auto;
+
+    width: 100%;
+    height: 100%;
 
     min-width: 0;
     min-height: 0;
@@ -2100,21 +2315,18 @@ body.mirrorMode #app {
     border: 0;
     border-radius: 0;
 
-    border-bottom: 1px solid #333;
-
     background: #151515;
 }
 
 #participantScreenShareWorkspace {
-    width: 100%;
-    height: 50%;
+    display: none;
 
-    flex: 1 1 50%;
+    width: 100%;
+    height: 100%;
 
     min-width: 0;
     min-height: 0;
 
-    display: flex;
     flex-direction: column;
 
     background: #151515;
@@ -2151,6 +2363,150 @@ body.mirrorMode #app {
     font-size: 14px;
 }
 
+
+/* =========================================================
+   PARTICIPANT FOOTER
+========================================================= */
+
+#participantToolbar {
+    display: none;
+
+    width: 50%;
+    height: 100%;
+
+    margin: 0;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 10px;
+}
+
+body.participantMode #participantToolbar {
+    display: flex;
+}
+
+#participantToolbar .toolbarButton {
+    flex: 1 1 0;
+
+    min-width: 0;
+    max-width: 160px;
+}
+
+#participantFooterChatComposer {
+    display: none;
+
+    width: 50%;
+    height: 100%;
+
+    flex: 0 0 50%;
+
+    min-width: 0;
+
+    align-items: center;
+
+    border-top: 0;
+}
+
+body.participantMode #participantFooterChatComposer {
+    display: flex;
+}
+
+#participantSharedViewButton {
+    display: none;
+}
+
+
+/* =========================================================
+   PARTICIPANT DESKTOP SHELL
+========================================================= */
+
+@media (min-width: 901px) {
+
+    body.participantMode #header {
+        width: 100%;
+        flex: 0 0 72px;
+    }
+
+    body.participantMode #toolbar {
+        width: 100%;
+
+        height: 64px;
+        min-height: 64px;
+
+        flex: 0 0 64px;
+
+        position: relative;
+
+        margin: 0;
+        padding: 8px 12px;
+
+        justify-content: flex-start;
+    }
+
+}
+
+
+/* =========================================================
+   PARTICIPANT MOBILE / PORTRAIT
+
+   Preserve a usable stacked layout on smaller screens.
+========================================================= */
+
+@media (max-width: 900px) {
+
+    body.participantMode #participantView {
+        flex-direction: column;
+    }
+
+    body.participantMode #participantLeft {
+        width: 100%;
+        height: 50%;
+
+        flex: 0 0 50%;
+
+        border-right: 0;
+        border-bottom: 1px solid #333;
+    }
+
+    body.participantMode #participantWorkspace {
+        width: 100%;
+        height: 50%;
+
+        flex: 0 0 50%;
+    }
+
+    body.participantMode #toolbar {
+        width: 100%;
+    }
+
+    #participantToolbar {
+        width: 50%;
+    }
+
+    #participantFooterChatComposer {
+        width: 50%;
+    }
+
+    #participantHeaderActions {
+        gap: 6px;
+    }
+
+    #participantHeaderActions .toolbarButton {
+        min-width: 0;
+        padding: 9px 10px;
+        font-size: 12px;
+    }
+
+}
+
+
+/* =========================================================
+   PARTICIPANT BROWSER
+
+   The legacy embedded browser is not part of Video Call V2.
+========================================================= */
+
 #participantBrowser {
     display: none !important;
 }
@@ -2185,6 +2541,33 @@ body.mirrorMode #app {
 
         <div id="connectionStatus">
             ● Ready
+        </div>
+
+
+        <!-- ===================================================
+             VIDEO CALL V2 — PARTICIPANT HEADER ACTIONS
+
+             These actions are visible only in Participant mode.
+        ==================================================== -->
+
+        <div id="participantHeaderActions">
+
+            <button
+                type="button"
+                class="toolbarButton redButton"
+                id="scheduleButtonParticipant"
+                onclick="window.open('https://apps.safeinsight.net/booking/?location=safe-insight&instructor=si-webs','_blank')"
+            >
+                Schedule
+            </button>
+
+            <button
+                class="toolbarButton redButton"
+                id="leaveButtonParticipant"
+            >
+                EXIT ROOM
+            </button>
+
         </div>
 
     </header>
@@ -2471,41 +2854,6 @@ body.mirrorMode #app {
                                 You
                             </div>
 
-
-                            <div id="participantVideoControls">
-
-                                <button
-                                    class="toolbarButton"
-                                    id="micButtonParticipant"
-                                >
-                                    🎤 Mic
-                                </button>
-
-                                <button
-                                    class="toolbarButton"
-                                    id="cameraButtonParticipant"
-                                >
-                                    📹 Camera ON
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="toolbarButton redButton"
-                                    id="scheduleButtonParticipant"
-                                    onclick="window.open('https://apps.safeinsight.net/booking/?location=safe-insight&instructor=si-webs','_blank')"
-                                >
-                                    📅 Schedule
-                                </button>
-
-                                <button
-                                    class="toolbarButton redButton"
-                                    id="leaveButtonParticipant"
-                                >
-                                    EXIT ROOM
-                                </button>
-
-                            </div>
-
                         </div>
 
 
@@ -2558,6 +2906,11 @@ body.mirrorMode #app {
 
             <!-- ===================================================
                  VIDEO CALL V2 — COLLABORATION WORKSPACE
+
+                 Chat is the default workspace.
+
+                 Shared View occupies this same workspace when the
+                 participant chooses to view an active shared screen.
             ==================================================== -->
 
             <div id="participantWorkspace">
@@ -2569,7 +2922,7 @@ body.mirrorMode #app {
 
                 <div
                     id="participantChatPanel"
-                    class="participantPanel"
+                    class="participantWorkspaceSection"
                 >
 
                     <div class="participantWorkspaceHeader">
@@ -2581,35 +2934,20 @@ body.mirrorMode #app {
                         class="chatMessages"
                     ></div>
 
-                    <div class="chatComposer">
-
-                        <input
-                            id="participantChatInput"
-                            type="text"
-                            maxlength="500"
-                            placeholder="Type a message..."
-                        >
-
-                        <button
-                            id="participantChatSend"
-                            class="chatSendButton"
-                        >
-                            Send
-                        </button>
-
-                    </div>
-
                 </div>
 
 
                 <!-- ===============================================
-                     SCREEN SHARING
+                     SHARED VIEW
                 ================================================ -->
 
-                <div id="participantScreenShareWorkspace">
+                <div
+                    id="participantScreenShareWorkspace"
+                    class="participantWorkspaceSection"
+                >
 
                     <div class="participantWorkspaceHeader">
-                        Screen Sharing
+                        Shared View
                     </div>
 
                     <div id="participantScreenShareStage">
@@ -2640,6 +2978,72 @@ body.mirrorMode #app {
             <button class="toolbarButton" id="micButton" style="background-color:#777;">🔇 Mic OFF</button>
             <button type="button" class="toolbarButton redButton" id="adminLmsLoginButton" onclick="window.open('https://admin.acadio.com/auth?go=/dashboard')">Admin LMS</button>
             <button class="toolbarButton redButton" id="adminPanelButton">Participants</button>
+        </div>
+
+
+        <!-- ===================================================
+             VIDEO CALL V2 — PARTICIPANT CONTROLS
+        ==================================================== -->
+
+        <div id="participantToolbar">
+
+            <button
+                class="toolbarButton"
+                id="cameraButtonParticipant"
+            >
+                📹 Camera ON
+            </button>
+
+            <button
+                class="toolbarButton"
+                id="micButtonParticipant"
+            >
+                🎤 Mic
+            </button>
+
+            <button
+                class="toolbarButton redButton"
+                id="participantChatWorkspaceButton"
+            >
+                Chat
+            </button>
+
+            <button
+                class="toolbarButton redButton"
+                id="participantSharedViewButton"
+            >
+                Shared View
+            </button>
+
+        </div>
+
+
+        <!-- ===================================================
+             VIDEO CALL V2 — PERMANENT PARTICIPANT CHAT COMPOSER
+
+             Sending remains available regardless of which
+             collaboration workspace is currently visible.
+        ==================================================== -->
+
+        <div
+            class="chatComposer"
+            id="participantFooterChatComposer"
+        >
+
+            <input
+                id="participantChatInput"
+                type="text"
+                maxlength="500"
+                placeholder="Type a message..."
+            >
+
+            <button
+                id="participantChatSend"
+                class="chatSendButton"
+            >
+                Send
+            </button>
+
         </div>
 
     </footer>
@@ -3356,12 +3760,75 @@ const adminChatMessages = document.getElementById("adminChatMessages");
 const adminChatInput = document.getElementById("adminChatInput");
 const adminChatSend = document.getElementById("adminChatSend");
 
-const participantChatMessages = document.getElementById("participantChatMessages");
-const participantChatInput = document.getElementById("participantChatInput");
-const participantChatSend = document.getElementById("participantChatSend");
-const micButtonParticipant = document.getElementById("micButtonParticipant");
-const cameraButtonParticipant = document.getElementById("cameraButtonParticipant");
-const leaveButtonParticipant = document.getElementById("leaveButtonParticipant");
+const participantChatMessages =
+    document.getElementById(
+        "participantChatMessages"
+    );
+
+const participantChatInput =
+    document.getElementById(
+        "participantChatInput"
+    );
+
+const participantChatSend =
+    document.getElementById(
+        "participantChatSend"
+    );
+
+const micButtonParticipant =
+    document.getElementById(
+        "micButtonParticipant"
+    );
+
+const cameraButtonParticipant =
+    document.getElementById(
+        "cameraButtonParticipant"
+    );
+
+const leaveButtonParticipant =
+    document.getElementById(
+        "leaveButtonParticipant"
+    );
+
+
+/*
+ * VIDEO CALL V2 — PARTICIPANT WORKSPACE REFERENCES
+ *
+ * Chat is the default collaboration workspace.
+ *
+ * Shared View uses the same right-hand workspace rather than
+ * permanently consuming part of the Participant interface.
+ */
+
+const participantWorkspace =
+    document.getElementById(
+        "participantWorkspace"
+    );
+
+const participantScreenShareWorkspace =
+    document.getElementById(
+        "participantScreenShareWorkspace"
+    );
+
+const participantChatWorkspaceButton =
+    document.getElementById(
+        "participantChatWorkspaceButton"
+    );
+
+const participantSharedViewButton =
+    document.getElementById(
+        "participantSharedViewButton"
+    );
+
+const participantToolbar =
+    document.getElementById(
+        "participantToolbar"
+    );
+
+const participantFooterChatComposer =
+    document.getElementById(
+        "participantFooterChatComposer"
+    );
 
 
 const participantBrowserFrame =
@@ -4343,6 +4810,24 @@ async function restoreParticipantSession(){
 
 
 async function initializeParticipant(){
+
+    /*
+     * VIDEO CALL V2 — PARTICIPANT MODE
+     *
+     * This class controls presentation only.
+     *
+     * It does not establish admission, identity, conference
+     * authority, or media permission.
+     */
+
+    document.body.classList.add(
+        "participantMode"
+    );
+
+    document.body.classList.remove(
+        "administratorMode"
+    );
+
 
     administratorView.style.display =
         "none";
@@ -8121,19 +8606,72 @@ function enterConference(participant){
         conferenceArea.style.display = "flex";
     }
 
-if(!isAdministrator){
-    administratorView.style.display = "none";
-    participantView.style.display = "flex";
-    toolbar.style.display = "none";
-    adminPanel.style.display = "none";
-}
+    if(!isAdministrator){
+
+        administratorView.style.display =
+            "none";
+
+        participantView.style.display =
+            "flex";
+
+        /*
+         * VIDEO CALL V2
+         *
+         * The Participant footer becomes part of the admitted
+         * conference experience. It remains hidden during the
+         * Knock and Waiting workflows.
+         */
+
+        toolbar.style.display =
+            "flex";
+
+        administratorToolbar.style.display =
+            "none";
+
+        if(participantToolbar){
+
+            participantToolbar.style.display =
+                "flex";
+
+        }
+
+        if(participantFooterChatComposer){
+
+            participantFooterChatComposer.style.display =
+                "flex";
+
+        }
+
+        adminPanel.style.display =
+            "none";
+
+
+        /*
+         * Chat is always the default Participant workspace.
+         */
+
+        if(participantChatPanel){
+
+            participantChatPanel.style.display =
+                "flex";
+
+        }
+
+        if(participantScreenShareWorkspace){
+
+            participantScreenShareWorkspace.style.display =
+                "none";
+
+        }
+
+    }
 
     /*
      * Make sure our local participant
      * camera/microphone is attached to
      * a local video element.
      */
-   
+
     attachLocalParticipantVideo();
 
     /*
@@ -11868,7 +12406,63 @@ appendChatMessage(
     participantChatInput.value = "";
 });
 
-participantChatInput.addEventListener("keydown", function(event){ if(event.key === "Enter"){ event.preventDefault(); participantChatSend.click(); } });
+participantChatInput.addEventListener(
+    "keydown",
+    function(event){
+
+        if(event.key === "Enter"){
+
+            event.preventDefault();
+
+            participantChatSend.click();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   VIDEO CALL V2 — PARTICIPANT WORKSPACE NAVIGATION
+========================================================= */
+
+participantChatWorkspaceButton.addEventListener(
+    "click",
+    function(){
+
+        /*
+         * Chat is the default collaboration workspace.
+         */
+
+        participantChatPanel.style.display =
+            "flex";
+
+        participantScreenShareWorkspace.style.display =
+            "none";
+
+    }
+);
+
+
+participantSharedViewButton.addEventListener(
+    "click",
+    function(){
+
+        /*
+         * Shared View only changes what occupies the
+         * collaboration workspace.
+         *
+         * It does not initiate a screen share.
+         */
+
+        participantChatPanel.style.display =
+            "none";
+
+        participantScreenShareWorkspace.style.display =
+            "flex";
+
+    }
+);
 
 
 micButtonParticipant.addEventListener(
