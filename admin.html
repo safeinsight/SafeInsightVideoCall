@@ -2645,6 +2645,36 @@ body.administratorMode #header {
 
         </div>
 
+        <!--
+            VIDEO CALL V2 — PERMANENT ADMINISTRATOR CHAT COMPOSER
+
+            The existing authoritative chat input and Send button
+            live permanently in the right half of the footer.
+
+            Changing the workspace above therefore never removes
+            the Administrator's ability to send a message.
+        -->
+
+        <div
+            class="chatComposer"
+            id="adminFooterChatComposer"
+            style="width:50%;"
+        >
+            <input
+                id="adminChatInput"
+                type="text"
+                maxlength="500"
+                placeholder="Type a message..."
+            >
+
+            <button
+                id="adminChatSend"
+                class="chatSendButton"
+            >
+                Send
+            </button>
+        </div>
+
     </footer>
 
 
@@ -2739,10 +2769,6 @@ body.administratorMode #header {
         <div id="adminChatRecipients"></div>
     </div>
     <div id="adminChatMessages" class="chatMessages"></div>
-    <div class="chatComposer">
-        <input id="adminChatInput" type="text" maxlength="500" placeholder="Type a message...">
-        <button id="adminChatSend" class="chatSendButton">Send</button>
-    </div>
 </aside>
 
 <!-- =======================================================
