@@ -13884,6 +13884,23 @@ async function startApplication(){
 
         await loadConferenceParticipants();
 
+        /*
+         * VIDEO CALL V2 — INITIALIZE ADMIN CHAT FROM
+         * AUTHORITATIVE PARTICIPANT STATE
+         *
+         * loadConferenceParticipants() has now completed, so the
+         * Administrator has the current active participant collection.
+         *
+         * Initialize the collaboration workspace from that completed
+         * state rather than relying on an earlier startup render.
+         */
+
+        openAdminChatThread =
+            "ALL";
+
+        renderAdminChatRecipients();
+        renderAdminChatMessages();
+
         subscribeToConference();
 
     }
