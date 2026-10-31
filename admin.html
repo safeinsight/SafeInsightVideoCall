@@ -4016,8 +4016,19 @@ function initializeAdministrator(){
         "hidden"
     );
 
+    /*
+     * VIDEO CALL V2 — ADMINISTRATOR LAYOUT
+     *
+     * administratorView is the horizontal flex container for:
+     *
+     * LEFT  — 50% video grid
+     * RIGHT — 50% collaboration workspace
+     *
+     * Do not override it with display:block.
+     */
+
     administratorView.style.display =
-        "block";
+        "flex";
 
     participantView.style.display =
         "none";
