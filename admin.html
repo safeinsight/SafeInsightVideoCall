@@ -12507,34 +12507,71 @@ function renderAdminChatMessages(){
 adminChatButton.addEventListener(
     "click",
     function(){
-        
-clearBrowserTabAlert();
-        
-        if(
-            adminChatPanel.style.display === "flex"
-        ){
 
-            adminChatPanel.style.display =
+        clearBrowserTabAlert();
+
+        /*
+         * VIDEO CALL V2 — CHAT WORKSPACE NAVIGATION
+         *
+         * Chat is the default collaboration workspace.
+         *
+         * The permanent footer composer remains available regardless
+         * of which workspace is being viewed. Clicking Chat therefore
+         * changes only the workspace above it.
+         */
+
+        if(!openAdminChatThread){
+            openAdminChatThread =
+                "ALL";
+        }
+
+        /*
+         * Conference Controls temporarily occupies the same right-side
+         * workspace. Close it when returning to Chat.
+         */
+
+        adminPanel.style.display =
+            "none";
+
+        /*
+         * Hide the Shared View workspace, if it is currently being
+         * displayed, and restore the Chat workspace.
+         */
+
+        const videoCallChatWorkspace =
+            document.getElementById(
+                "videoCallChatWorkspace"
+            );
+
+        const videoCallScreenShareWorkspace =
+            document.getElementById(
+                "videoCallScreenShareWorkspace"
+            );
+
+        if(videoCallScreenShareWorkspace){
+
+            videoCallScreenShareWorkspace.style.display =
                 "none";
 
-        }else{
-
-            if(!openAdminChatThread){
-                openAdminChatThread =
-                    "ALL";
-            }
-
-            renderAdminChatRecipients();
-            renderAdminChatMessages();
-
-            adminChatPanel.style.display =
-                "flex";
         }
+
+        if(videoCallChatWorkspace){
+
+            videoCallChatWorkspace.style.display =
+                "flex";
+
+        }
+
+        /*
+         * Refresh the authoritative conversation selector and the
+         * currently selected conversation.
+         */
+
+        renderAdminChatRecipients();
+        renderAdminChatMessages();
 
     }
 );
-
-closeAdminChat.addEventListener("click", function(){ adminChatPanel.style.display = "none"; });
 
 adminChatSend.addEventListener(
     "click",
