@@ -1128,33 +1128,15 @@ input {
     pointer-events:auto;
 }
 
-#micButtonParticipant {
-    left:10px;
-    top:40%;
-    transform:translateY(-50%);
-    width:125px;
-}
-
-#cameraButtonParticipant {
-    left:10px;
-    top:40%;
-    transform:translateY(calc(-50% + 50px));
-    width:125px;
-}
-
-#scheduleButtonParticipant {
-    left:10px;
-    top:40%;
-    transform:translateY(calc(-50% - 50px));
-    width:125px;
-}
-
-#leaveButtonParticipant {
-    left:10px;
-    top:40%;
-    transform:translateY(calc(-50% + 100px));
-    width:125px;
-}
+/*
+ * Legacy Participant control positioning removed for Video Call V2.
+ *
+ * Camera and microphone now live in the permanent footer.
+ * Schedule and EXIT ROOM now live in the header.
+ *
+ * Their positioning is therefore controlled by the V2 container
+ * layouts rather than absolute positioning over the video tile.
+ */
 
 #participantChatPanel {
     width:100%;
@@ -1398,33 +1380,10 @@ input {
         font-size:11px;
     }
 
-        #micButtonParticipant {
-        left:10px;
-        top:10px;
-        transform:none;
-    }
-
-    #cameraButtonParticipant {
-        left:10px;
-        bottom:10px;
-        top:auto;
-        transform:none;
-    }
-
-    #scheduleButtonParticipant {
-        right:10px;
-        left:auto;
-        top:10px;
-        transform:none;
-    }
-
-    #leaveButtonParticipant {
-        right:10px;
-        left:auto;
-        bottom:10px;
-        top:auto;
-        transform:none;
-    }
+    /*
+     * Video Call V2 Participant controls are positioned by
+     * the header and footer layouts at every viewport size.
+     */
 
     #participantView {
         display:flex;
