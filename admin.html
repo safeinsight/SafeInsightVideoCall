@@ -1973,10 +1973,33 @@ body.administratorMode #header {
 
 @media (min-width: 901px) {
 
+    /*
+     * VIDEO CALL V2 — FULL-WIDTH TITLE BAR
+     *
+     * The header belongs to the entire Video Call application,
+     * not just the video side.
+     */
+
+    body.administratorMode #header {
+        width: 100%;
+        flex: 0 0 72px;
+    }
+
+
+    /*
+     * VIDEO CALL V2 — LEFT-SIDE CALL CONTROLS
+     *
+     * The toolbar occupies exactly the same left 50% as the
+     * four-person video grid. No compensating margin is needed.
+     */
+
     body.administratorMode #toolbar {
         width: 50%;
+        flex: 0 0 64px;
 
-        margin-right: 50%;
+        align-self: flex-start;
+
+        margin: 0;
 
         justify-content: center;
     }
@@ -1992,6 +2015,24 @@ body.administratorMode #header {
         align-items: center;
 
         gap: 10px;
+    }
+
+
+    /*
+     * VIDEO CALL V2 — PARTICIPANTS WORKSPACE
+     *
+     * Conference Controls begins below the full-width header
+     * and ends above the bottom control/message area.
+     *
+     * It remains on the right half only.
+     */
+
+    body.administratorMode #adminPanel {
+        top: 72px;
+        right: 0;
+        bottom: 64px;
+
+        width: 50%;
     }
 
 }
