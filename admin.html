@@ -2743,7 +2743,7 @@ body.administratorMode #header {
 
 <div id="joinScreen">
 
-    <div class="joinBox">
+    <div class="joinBox" id="participantJoinBox">
 
         <img
             src="safe-insight-logo.png"
@@ -2752,17 +2752,17 @@ body.administratorMode #header {
         >
 
         <h1>
-            CCW Conference
+            Video Call
         </h1>
 
         <p>
-            Please Enter Your FULL NAME <br> Then Knock To Join Room
+            Please Enter Name <br> Then Knock To Join Room
         </p>
 
         <input
             type="text"
             id="nameInput"
-            placeholder="Enter your FULL NAME"
+            placeholder="Enter your name"
             maxlength="40"
             autocomplete="name"
         >
@@ -2770,6 +2770,24 @@ body.administratorMode #header {
         <button id="knockButton">
             🔔 Knock to Enter
         </button>
+
+    </div>
+
+    <div class="joinBox" id="administratorRoomRequiredBox" style="display:none;">
+
+        <img
+            src="safe-insight-logo.png"
+            class="joinLogo"
+            alt="Safe Insight"
+        >
+
+        <h1>
+            Video Call
+        </h1>
+
+        <p>
+            Please select a conference room to begin.
+        </p>
 
     </div>
 
@@ -13889,7 +13907,71 @@ function showAdministratorSignIn(){
    START APPLICATION
 ========================================================= */
 
+/* =========================================================
+   START APPLICATION
+========================================================= */
+
 async function startApplication(){
+
+    /*
+     * ADMINISTRATOR LANDING STATE
+     *
+     * admin.html without an explicit room is not a Participant
+     * invitation and must never fall through to the Participant
+     * Knock workflow.
+     *
+     * The generic Administrator URL therefore acts only as a
+     * neutral landing state until a room has been selected.
+     */
+    const requestedRoom =
+        urlParams.get("room");
+
+    if(!requestedRoom){
+
+        administratorView.style.display =
+            "none";
+
+        participantView.style.display =
+            "none";
+
+        toolbar.style.display =
+            "none";
+
+        administratorToolbar.style.display =
+            "none";
+
+        adminPanel.style.display =
+            "none";
+
+        const participantJoinBox =
+            document.getElementById(
+                "participantJoinBox"
+            );
+
+        const administratorRoomRequiredBox =
+            document.getElementById(
+                "administratorRoomRequiredBox"
+            );
+
+        if(participantJoinBox){
+            participantJoinBox.style.display =
+                "none";
+        }
+
+        if(administratorRoomRequiredBox){
+            administratorRoomRequiredBox.style.display =
+                "block";
+        }
+
+        joinScreen.classList.remove(
+            "hidden"
+        );
+
+        joinScreen.style.display =
+            "flex";
+
+        return;
+    }
 
     /*
      * Ordinary participant access does not require
