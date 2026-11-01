@@ -11723,15 +11723,18 @@ leaveButton.addEventListener(
 
 
             /*
-             * Return to the Video Call entry point without the
-             * Administrator room parameters.
+             * Return directly to the Administrator entry screen.
              *
-             * Authentication remains intact. EXIT ROOM is not
-             * the same action as signing out of Safe Insight.
+             * Do not route through index.html because the V2
+             * entry router sends ordinary entry traffic into the
+             * Participant workflow.
+             *
+             * Removing the room/admin query parameters returns
+             * this browser to the Administrator login/start screen.
              */
 
             window.location.href =
-                "index.html";
+                "admin.html";
 
             return;
         }
