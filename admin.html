@@ -2527,6 +2527,91 @@ body.administratorMode #header {
              VIDEO CALL V2 — COLLABORATION WORKSPACE
         ==================================================== -->
 
+        <!-- ===================================================
+             VIDEO CALL V2 — CALL CONTROLS / CHAT COMPOSER
+        ==================================================== -->
+
+        <footer id="toolbar">
+
+            <div id="administratorToolbar" class="toolbarView">
+
+                <!--
+                    VIDEO CALL V2 — PRIMARY CALL CONTROLS
+
+                    Camera and microphone controls remain first for
+                    immediate access to the Administrator's own media.
+
+                    Chat returns the collaboration workspace to its
+                    default Chat view.
+
+                    Shared View becomes visible only while a screen
+                    share is active. It navigates to the existing shared
+                    screen and does not start a new screen share.
+                -->
+
+                <button
+                    class="toolbarButton"
+                    id="adminCameraButton"
+                >
+                    Camera OFF
+                </button>
+
+                <button
+                    class="toolbarButton"
+                    id="micButton"
+                    style="background-color:#777;"
+                >
+                    🔇 Mic OFF
+                </button>
+
+                <button
+                    class="toolbarButton redButton"
+                    id="adminChatButton"
+                >
+                    Chat
+                </button>
+
+                <button
+                    class="toolbarButton redButton"
+                    id="adminSharedViewButton"
+                    style="display:none;"
+                >
+                    Shared View
+                </button>
+
+            </div>
+
+            <!--
+                VIDEO CALL V2 — PERMANENT ADMINISTRATOR CHAT COMPOSER
+
+                The existing authoritative chat input and Send button
+                remain permanently available below the call controls
+                in portrait and beside them on desktop.
+            -->
+
+            <div
+                class="chatComposer"
+                id="adminFooterChatComposer"
+                style="width:50%;"
+            >
+                <input
+                    id="adminChatInput"
+                    type="text"
+                    maxlength="500"
+                    placeholder="Type a message..."
+                >
+
+                <button
+                    id="adminChatSend"
+                    class="chatSendButton"
+                >
+                    Send
+                </button>
+            </div>
+
+        </footer>
+
+
         <aside id="videoCallWorkspace">
 
             <section
@@ -2651,87 +2736,6 @@ body.administratorMode #header {
          BOTTOM TOOLBAR
     ==================================================== -->
 
-    <footer id="toolbar">
-
-        <div id="administratorToolbar" class="toolbarView">
-
-            <!--
-                VIDEO CALL V2 — PRIMARY CALL CONTROLS
-
-                Camera and microphone controls remain first for
-                immediate access to the Administrator's own media.
-
-                Chat returns the collaboration workspace to its
-                default Chat view.
-
-                Shared View becomes visible only while a screen
-                share is active. It navigates to the existing shared
-                screen and does not start a new screen share.
-            -->
-
-            <button
-                class="toolbarButton"
-                id="adminCameraButton"
-            >
-                Camera OFF
-            </button>
-
-            <button
-                class="toolbarButton"
-                id="micButton"
-                style="background-color:#777;"
-            >
-                🔇 Mic OFF
-            </button>
-
-            <button
-                class="toolbarButton redButton"
-                id="adminChatButton"
-            >
-                Chat
-            </button>
-
-            <button
-                class="toolbarButton redButton"
-                id="adminSharedViewButton"
-                style="display:none;"
-            >
-                Shared View
-            </button>
-
-        </div>
-
-        <!--
-            VIDEO CALL V2 — PERMANENT ADMINISTRATOR CHAT COMPOSER
-
-            The existing authoritative chat input and Send button
-            live permanently in the right half of the footer.
-
-            Changing the workspace above therefore never removes
-            the Administrator's ability to send a message.
-        -->
-
-        <div
-            class="chatComposer"
-            id="adminFooterChatComposer"
-            style="width:50%;"
-        >
-            <input
-                id="adminChatInput"
-                type="text"
-                maxlength="500"
-                placeholder="Type a message..."
-            >
-
-            <button
-                id="adminChatSend"
-                class="chatSendButton"
-            >
-                Send
-            </button>
-        </div>
-
-    </footer>
 
 
 </div>
