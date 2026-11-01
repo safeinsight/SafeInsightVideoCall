@@ -1921,39 +1921,45 @@ body.mirrorMode #app {
 
 
 /* =========================================================
-   VIDEO CALL V2 — ADMINISTRATOR DESKTOP SHELL
+   VIDEO CALL V2 — ADMINISTRATOR SHELL
 
-   V2 intentionally preserves the existing conference tile
-   elements and connection engine while presenting only the
-   four positions used by a traditional video call:
+   DESKTOP
+       Header across full width
+       Video 50% | Workspace 50%
+       Controls 50% | Composer 50%
 
-       Administrator | Participant 1
-       Participant 2 | Participant 3
+   MOBILE / PORTRAIT
+       Header logo
+       Header actions
+       Video grid
+       Call controls
+       Chat composer
+       Workspace
 
-   The right half is reserved for collaboration features.
+   Existing media, chat, signaling, and control elements are
+   preserved. Only their responsive presentation changes.
+========================================================= */
+
+
+/* =========================================================
+   COMMON V2 STRUCTURE
 ========================================================= */
 
 #administratorView {
     width: 100%;
     height: 100%;
 
-    display: flex;
-
     min-width: 0;
     min-height: 0;
+
+    display: grid;
 
     background: #000;
 }
 
 
 /*
- * VIDEO CALL V2 — PROP 4 HEADER
- *
- * The header spans the entire application.
- *
- * The Safe Insight identity remains on the left while
- * Administrator-only workspace navigation and the Share Screen
- * action remain grouped on the upper-right.
+ * HEADER
  */
 
 body.administratorMode #header {
@@ -1976,118 +1982,10 @@ body.administratorMode #header {
 
 
 /*
- * VIDEO CALL V2 — FOUR-PERSON VIDEO AREA
+ * Only four positions belong to Video Call V2.
  *
- * The call permanently occupies the left half of the available
- * conference area.
- */
-
-#administratorView #videoGrid {
-    width: 50%;
-    height: 100%;
-
-    flex: 0 0 50%;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
-
-    min-width: 0;
-    min-height: 0;
-
-    border-right: 1px solid #333;
-}
-
-
-/*
- * VIDEO CALL V2 — PROP 4 CALL CONTROL BAR
- *
- * The footer still owns the proven Administrator control
- * elements, but on desktop it occupies only the left half of
- * the application so the controls sit directly beneath the
- * four video tiles.
- */
-
-@media (min-width: 901px) {
-
-    /*
-     * VIDEO CALL V2 — FULL-WIDTH TITLE BAR
-     *
-     * The header belongs to the entire Video Call application,
-     * not just the video side.
-     */
-
-    body.administratorMode #header {
-        width: 100%;
-        flex: 0 0 72px;
-    }
-
-
-    /*
-     * VIDEO CALL V2 — LEFT-SIDE CALL CONTROLS
-     *
-     * The toolbar occupies exactly the same left 50% as the
-     * four-person video grid. No compensating margin is needed.
-     */
-
-    body.administratorMode #toolbar {
-        width: 100%;
-        height: 64px;
-        min-height: 64px;
-        flex: 0 0 64px;
-
-        position: relative;
-
-        margin: 0;
-        padding: 8px 12px;
-
-        justify-content: flex-start;
-    }
-
-    body.administratorMode #administratorToolbar {
-        display: flex;
-
-        width: 50%;
-        height: 100%;
-
-        margin: 0;
-
-        justify-content: center;
-        align-items: center;
-
-        gap: 10px;
-    }
-
-    body.administratorMode #administratorToolbar .toolbarButton {
-        flex: 1 1 0;
-        min-width: 0;
-        max-width: 160px;
-    }
-
-
-    /*
-     * VIDEO CALL V2 — PARTICIPANTS WORKSPACE
-     *
-     * Conference Controls begins below the full-width header
-     * and ends above the bottom control/message area.
-     *
-     * It remains on the right half only.
-     */
-
-    body.administratorMode #adminPanel {
-        top: 72px;
-        right: 0;
-        bottom: 64px;
-
-        width: 50%;
-    }
-
-}
-
-
-/*
- * Keep the legacy V1 tile elements available to the existing
- * JavaScript during the V2 layout conversion, but do not
- * display positions that do not exist in the four-person call.
+ * The legacy tiles remain in the DOM for the existing
+ * JavaScript / connection architecture.
  */
 
 #administratorView #tile5,
@@ -2103,21 +2001,58 @@ body.administratorMode #header {
 
 
 /*
- * VIDEO CALL V2 — COLLABORATION WORKSPACE
- *
- * The right half is one workspace rather than two permanently
- * stacked panels.
- *
- * Chat is the default workspace. Conference Controls and an
- * active Shared View will later temporarily occupy this same
- * region.
+ * FOUR-PERSON VIDEO GRID
+ */
+
+#administratorView #videoGrid {
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    grid-template-rows:
+        repeat(2, minmax(0, 1fr));
+
+    overflow: hidden;
+}
+
+
+/*
+ * CALL CONTROLS / PERMANENT CHAT COMPOSER
+ */
+
+body.administratorMode #toolbar {
+    width: 100%;
+
+    min-width: 0;
+    min-height: 0;
+
+    margin: 0;
+
+    background: #000;
+}
+
+body.administratorMode #administratorToolbar {
+    min-width: 0;
+    min-height: 0;
+}
+
+body.administratorMode #adminFooterChatComposer {
+    min-width: 0;
+}
+
+
+/*
+ * COLLABORATION WORKSPACE
  */
 
 #videoCallWorkspace {
-    width: 50%;
+    width: 100%;
     height: 100%;
-
-    flex: 0 0 50%;
 
     min-width: 0;
     min-height: 0;
@@ -2149,9 +2084,8 @@ body.administratorMode #header {
 
 
 /*
- * Screen sharing is no longer permanently allocated half of
- * the workspace. It will become a workspace view only while
- * screen sharing is actually active.
+ * Screen sharing is not permanently allocated workspace.
+ * It becomes the workspace only while Shared View is active.
  */
 
 #videoCallScreenShareWorkspace {
@@ -2186,6 +2120,403 @@ body.administratorMode #header {
 
     text-align: center;
     font-size: 14px;
+}
+
+
+/* =========================================================
+   VIDEO CALL V2 — DESKTOP / LANDSCAPE
+========================================================= */
+
+@media (min-width: 901px) {
+
+    body.administratorMode #header {
+        width: 100%;
+        flex: 0 0 72px;
+    }
+
+
+    /*
+     * Two columns:
+     *
+     *     VIDEO     | WORKSPACE
+     *     TOOLBAR   | WORKSPACE
+     */
+
+    #administratorView {
+        grid-template-columns:
+            minmax(0, 50%)
+            minmax(0, 50%);
+
+        grid-template-rows:
+            minmax(0, 1fr)
+            64px;
+    }
+
+    #administratorView #videoGrid {
+        grid-column: 1;
+        grid-row: 1;
+
+        border-right: 1px solid #333;
+    }
+
+    body.administratorMode #toolbar {
+        grid-column: 1 / 3;
+        grid-row: 2;
+
+        height: 64px;
+        min-height: 64px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 0;
+
+        padding: 8px 12px;
+
+        border-top: 2px solid #333;
+    }
+
+    body.administratorMode #administratorToolbar {
+        display: flex;
+
+        width: 50%;
+        height: 100%;
+
+        flex: 0 0 50%;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 10px;
+    }
+
+    body.administratorMode #administratorToolbar .toolbarButton {
+        flex: 1 1 0;
+
+        min-width: 0;
+        max-width: 160px;
+    }
+
+    body.administratorMode #adminFooterChatComposer {
+        width: 50% !important;
+        height: 100%;
+
+        flex: 0 0 50%;
+
+        border-top: 0;
+    }
+
+    #videoCallWorkspace {
+        grid-column: 2;
+        grid-row: 1;
+
+        border-left: 1px solid #333;
+    }
+
+
+    /*
+     * Participants / Conference Controls occupies the same
+     * right-side workspace region.
+     */
+
+    body.administratorMode #adminPanel {
+        top: 72px;
+        right: 0;
+        bottom: 64px;
+
+        width: 50%;
+    }
+
+}
+
+
+/* =========================================================
+   VIDEO CALL V2 — MOBILE / PORTRAIT
+========================================================= */
+
+@media (max-width: 900px), (orientation: portrait) {
+
+    html,
+    body {
+        height: auto;
+        min-height: 100%;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    body.administratorMode {
+        height: auto;
+        min-height: 100dvh;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        background: #000;
+    }
+
+    body.administratorMode #app {
+        width: 100%;
+        height: auto;
+        min-height: 100dvh;
+
+        overflow: visible;
+    }
+
+
+    /*
+     * ADMIN HEADER
+     *
+     * Row 1: centered Safe Insight logo
+     * Row 2: Participants | Share Screen | EXIT ROOM
+     */
+
+    body.administratorMode #header {
+        width: 100%;
+        height: auto;
+        min-height: 0;
+
+        flex: none;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        gap: 8px;
+
+        padding: 8px;
+
+        border-bottom: 2px solid #333;
+    }
+
+    body.administratorMode #header .headerLogo {
+        display: block;
+
+        height: 46px;
+        width: auto;
+
+        margin: 0 auto;
+    }
+
+    body.administratorMode #videoCallHeaderActions {
+        width: 100%;
+
+        margin: 0;
+
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+
+        gap: 6px;
+    }
+
+    body.administratorMode #videoCallHeaderActions .toolbarButton {
+        flex: 1 1 0;
+
+        width: auto;
+        min-width: 0;
+
+        padding: 9px 5px;
+
+        font-size: 11px;
+    }
+
+
+    /*
+     * Conference area is allowed to grow naturally so the
+     * browser page — rather than an individual video region —
+     * provides vertical scrolling.
+     */
+
+    body.administratorMode #conferenceArea {
+        width: 100%;
+        height: auto;
+
+        flex: none;
+
+        min-height: 0;
+
+        display: block;
+
+        overflow: visible;
+    }
+
+
+    /*
+     * Explicit vertical order:
+     *
+     *     1. Video
+     *     2. Call controls
+     *     3. Message composer
+     *     4. Workspace
+     */
+
+    #administratorView {
+        width: 100%;
+        height: auto;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        grid-template-rows:
+            auto
+            auto
+            minmax(420px, auto);
+
+        overflow: visible;
+    }
+
+
+    /*
+     * VIDEO
+     */
+
+    #administratorView #videoGrid {
+        grid-column: 1;
+        grid-row: 1;
+
+        width: 100%;
+        height: auto;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        grid-template-rows:
+            repeat(2, minmax(150px, 32vw));
+
+        grid-auto-rows: 0;
+
+        align-content: start;
+
+        overflow: hidden;
+
+        padding-bottom: 0;
+
+        border-right: 0;
+        border-bottom: 1px solid #333;
+    }
+
+
+    /*
+     * TOOLBAR
+     *
+     * Existing desktop halves become two full-width rows.
+     */
+
+    body.administratorMode #toolbar {
+        grid-column: 1;
+        grid-row: 2;
+
+        width: 100%;
+        height: auto;
+        min-height: 0;
+
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+
+        gap: 0;
+
+        padding: 0;
+
+        border-top: 0;
+        border-bottom: 1px solid #333;
+    }
+
+    body.administratorMode #administratorToolbar {
+        width: 100%;
+        height: auto;
+
+        flex: none;
+
+        display: flex !important;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: center;
+
+        gap: 6px;
+
+        padding: 7px 8px;
+
+        border-bottom: 1px solid #333;
+    }
+
+    body.administratorMode #administratorToolbar .toolbarButton {
+        flex: 1 1 0;
+
+        width: auto;
+        min-width: 0;
+        max-width: none;
+
+        margin: 0;
+
+        padding: 10px 5px;
+
+        font-size: 11px;
+    }
+
+    body.administratorMode #adminChatButton,
+    body.administratorMode #adminCameraButton,
+    body.administratorMode #micButton,
+    body.administratorMode #adminSharedViewButton {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    body.administratorMode #adminFooterChatComposer {
+        width: 100% !important;
+        height: auto;
+
+        flex: none;
+
+        padding: 8px;
+
+        border-top: 0;
+    }
+
+
+    /*
+     * WORKSPACE
+     */
+
+    #videoCallWorkspace {
+        grid-column: 1;
+        grid-row: 3;
+
+        width: 100%;
+        height: 420px;
+
+        min-height: 420px;
+
+        border-left: 0;
+        border-top: 1px solid #333;
+    }
+
+
+    /*
+     * Participants / Conference Controls uses the same
+     * full-width workspace footprint in portrait.
+     */
+
+    body.administratorMode #adminPanel {
+        top: auto;
+        right: 0;
+        bottom: auto;
+        left: 0;
+
+        width: 100%;
+        height: 420px;
+
+        position: absolute;
+
+        border-left: 0;
+        border-top: 1px solid #444;
+    }
+
 }
 
 </style>
