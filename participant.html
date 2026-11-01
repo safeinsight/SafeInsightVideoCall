@@ -2445,52 +2445,299 @@ body.participantMode #participantFooterChatComposer {
 /* =========================================================
    PARTICIPANT MOBILE / PORTRAIT
 
-   Preserve a usable stacked layout on smaller screens.
+   Mobile order:
+
+       Header
+       Four-person video
+       Camera / Mic / Chat / Shared View
+       Permanent chat composer
+       Collaboration workspace
+
+   The page itself scrolls vertically.
 ========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 900px), (orientation: portrait) {
 
-    body.participantMode #participantView {
-        flex-direction: column;
+    html,
+    body {
+        height: auto;
+        min-height: 100%;
+
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
-    body.participantMode #participantLeft {
-        width: 100%;
-        height: 50%;
+    body.participantMode {
+        height: auto;
+        min-height: 100dvh;
 
-        flex: 0 0 50%;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        background: #000;
+    }
+
+    body.participantMode #app {
+        width: 100%;
+        height: auto;
+        min-height: 100dvh;
+
+        overflow: visible;
+    }
+
+
+    /*
+     * PARTICIPANT HEADER
+     *
+     * Unlike the Administrator header, Participant has only
+     * EXIT ROOM, so the normal single-row header remains:
+     *
+     * Safe Insight logo | EXIT ROOM
+     */
+
+    body.participantMode #header {
+        width: 100%;
+        height: 60px;
+        min-height: 60px;
+
+        flex: none;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 7px 10px;
+
+        border-bottom: 2px solid #333;
+    }
+
+    body.participantMode #header .headerLogo {
+        height: 44px;
+        width: auto;
+    }
+
+    body.participantMode #participantHeaderActions {
+        width: auto;
+
+        margin-left: auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        gap: 0;
+    }
+
+    body.participantMode #participantHeaderActions .toolbarButton {
+        width: auto;
+        min-width: 100px;
+
+        padding: 9px 10px;
+
+        font-size: 11px;
+    }
+
+
+    /*
+     * Allow the conference surface to grow vertically.
+     */
+
+    body.participantMode #conferenceArea {
+        width: 100%;
+        height: auto;
+
+        flex: none;
+
+        min-height: 0;
+
+        display: block;
+
+        overflow: visible;
+    }
+
+
+    /*
+     * PARTICIPANT LAYOUT OWNER
+     *
+     * 1. Four-person video
+     * 2. Toolbar
+     * 3. Collaboration workspace
+     */
+
+    body.participantMode #participantView {
+        width: 100%;
+        height: auto;
+
+        min-width: 0;
+        min-height: 0;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr);
+
+        grid-template-rows:
+            auto
+            auto
+            minmax(420px, auto);
+
+        gap: 0;
+        padding: 0;
+
+        overflow: visible;
+
+        background: #000;
+    }
+
+
+    /*
+     * FOUR-PERSON VIDEO
+     */
+
+    body.participantMode #participantLeft {
+        grid-column: 1;
+        grid-row: 1;
+
+        width: 100%;
+        height: auto;
+
+        min-width: 0;
+        min-height: 0;
+
+        flex: none;
+
+        display: block;
 
         border-right: 0;
         border-bottom: 1px solid #333;
     }
 
-    body.participantMode #participantWorkspace {
+    body.participantMode #participantVideoPanel {
         width: 100%;
-        height: 50%;
+        height: auto;
 
-        flex: 0 0 50%;
+        min-width: 0;
+        min-height: 0;
     }
+
+    body.participantMode #participantVideoStage {
+        width: 100%;
+        height: auto;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        grid-template-rows:
+            repeat(2, minmax(150px, 32vw));
+
+        gap: 1px;
+
+        overflow: hidden;
+
+        background: #333;
+    }
+
+
+    /*
+     * TOOLBAR
+     *
+     * Row 1: Camera | Mic | Chat | Shared View
+     * Row 2: Message field | Send
+     */
 
     body.participantMode #toolbar {
+        grid-column: 1;
+        grid-row: 2;
+
         width: 100%;
+        height: auto;
+        min-height: 0;
+
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+
+        flex: none;
+
+        gap: 0;
+
+        margin: 0;
+        padding: 0;
+
+        border-top: 0;
+        border-bottom: 1px solid #333;
+
+        background: #000;
     }
 
-    #participantToolbar {
-        width: 50%;
-    }
+    body.participantMode #participantToolbar {
+        width: 100%;
+        height: auto;
 
-    #participantFooterChatComposer {
-        width: 50%;
-    }
+        flex: none;
 
-    #participantHeaderActions {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: center;
+
         gap: 6px;
+
+        padding: 7px 8px;
+
+        border-bottom: 1px solid #333;
     }
 
-    #participantHeaderActions .toolbarButton {
+    body.participantMode #participantToolbar .toolbarButton {
+        flex: 1 1 0;
+
+        width: auto;
         min-width: 0;
-        padding: 9px 10px;
-        font-size: 12px;
+        max-width: none;
+
+        margin: 0;
+
+        padding: 10px 5px;
+
+        font-size: 11px;
+    }
+
+    body.participantMode #participantFooterChatComposer {
+        width: 100%;
+        height: auto;
+
+        flex: none;
+
+        display: flex;
+
+        padding: 8px;
+
+        border-top: 0;
+    }
+
+
+    /*
+     * COLLABORATION WORKSPACE
+     */
+
+    body.participantMode #participantWorkspace {
+        grid-column: 1;
+        grid-row: 3;
+
+        width: 100%;
+        height: 420px;
+
+        min-width: 0;
+        min-height: 420px;
+
+        flex: none;
+
+        border-left: 0;
+        border-top: 1px solid #333;
     }
 
 }
@@ -2899,6 +3146,90 @@ body.participantMode #participantFooterChatComposer {
                  participant chooses to view an active shared screen.
             ==================================================== -->
 
+            <!-- ===================================================
+                 VIDEO CALL V2 — PARTICIPANT CONTROLS / CHAT COMPOSER
+            ==================================================== -->
+
+            <footer id="toolbar">
+
+                <div id="administratorToolbar" class="toolbarView">
+                    <button class="toolbarButton redButton" id="adminChatButton">Chat</button>
+                    <button class="toolbarButton" id="adminCameraButton">Camera OFF</button>
+                    <button class="toolbarButton redButton" id="leaveButton">EXIT ROOM</button>
+                    <button class="toolbarButton" id="micButton" style="background-color:#777;">🔇 Mic OFF</button>
+                    <button type="button" class="toolbarButton redButton" id="adminLmsLoginButton" onclick="window.open('https://admin.acadio.com/auth?go=/dashboard')">Admin LMS</button>
+                    <button class="toolbarButton redButton" id="adminPanelButton">Participants</button>
+                </div>
+
+
+                <!-- ===================================================
+                     VIDEO CALL V2 — PARTICIPANT CONTROLS
+                ==================================================== -->
+
+                <div id="participantToolbar">
+
+                    <button
+                        class="toolbarButton"
+                        id="cameraButtonParticipant"
+                    >
+                        📹 Camera ON
+                    </button>
+
+                    <button
+                        class="toolbarButton"
+                        id="micButtonParticipant"
+                    >
+                        🎤 Mic
+                    </button>
+
+                    <button
+                        class="toolbarButton redButton"
+                        id="participantChatWorkspaceButton"
+                    >
+                        Chat
+                    </button>
+
+                    <button
+                        class="toolbarButton redButton"
+                        id="participantSharedViewButton"
+                    >
+                        Shared View
+                    </button>
+
+                </div>
+
+
+                <!-- ===================================================
+                     VIDEO CALL V2 — PERMANENT PARTICIPANT CHAT COMPOSER
+
+                     Sending remains available regardless of which
+                     collaboration workspace is currently visible.
+                ==================================================== -->
+
+                <div
+                    class="chatComposer"
+                    id="participantFooterChatComposer"
+                >
+
+                    <input
+                        id="participantChatInput"
+                        type="text"
+                        maxlength="500"
+                        placeholder="Type a message..."
+                    >
+
+                    <button
+                        id="participantChatSend"
+                        class="chatSendButton"
+                    >
+                        Send
+                    </button>
+
+                </div>
+
+            </footer>
+
+
             <div id="participantWorkspace">
 
 
@@ -2955,84 +3286,6 @@ body.participantMode #participantFooterChatComposer {
          BOTTOM TOOLBAR
     ==================================================== -->
 
-    <footer id="toolbar">
-
-        <div id="administratorToolbar" class="toolbarView">
-            <button class="toolbarButton redButton" id="adminChatButton">Chat</button>
-            <button class="toolbarButton" id="adminCameraButton">Camera OFF</button>
-            <button class="toolbarButton redButton" id="leaveButton">EXIT ROOM</button>
-            <button class="toolbarButton" id="micButton" style="background-color:#777;">🔇 Mic OFF</button>
-            <button type="button" class="toolbarButton redButton" id="adminLmsLoginButton" onclick="window.open('https://admin.acadio.com/auth?go=/dashboard')">Admin LMS</button>
-            <button class="toolbarButton redButton" id="adminPanelButton">Participants</button>
-        </div>
-
-
-        <!-- ===================================================
-             VIDEO CALL V2 — PARTICIPANT CONTROLS
-        ==================================================== -->
-
-        <div id="participantToolbar">
-
-            <button
-                class="toolbarButton"
-                id="cameraButtonParticipant"
-            >
-                📹 Camera ON
-            </button>
-
-            <button
-                class="toolbarButton"
-                id="micButtonParticipant"
-            >
-                🎤 Mic
-            </button>
-
-            <button
-                class="toolbarButton redButton"
-                id="participantChatWorkspaceButton"
-            >
-                Chat
-            </button>
-
-            <button
-                class="toolbarButton redButton"
-                id="participantSharedViewButton"
-            >
-                Shared View
-            </button>
-
-        </div>
-
-
-        <!-- ===================================================
-             VIDEO CALL V2 — PERMANENT PARTICIPANT CHAT COMPOSER
-
-             Sending remains available regardless of which
-             collaboration workspace is currently visible.
-        ==================================================== -->
-
-        <div
-            class="chatComposer"
-            id="participantFooterChatComposer"
-        >
-
-            <input
-                id="participantChatInput"
-                type="text"
-                maxlength="500"
-                placeholder="Type a message..."
-            >
-
-            <button
-                id="participantChatSend"
-                class="chatSendButton"
-            >
-                Send
-            </button>
-
-        </div>
-
-    </footer>
 
 
 </div>
@@ -8597,8 +8850,27 @@ function enterConference(participant){
         administratorView.style.display =
             "none";
 
-        participantView.style.display =
-            "flex";
+        /*
+         * VIDEO CALL V2 — PARTICIPANT RESPONSIVE LAYOUT
+         *
+         * participantView layout is owned by the responsive CSS.
+         *
+         * Desktop:
+         *     Video Grid | Collaboration Workspace
+         *     Toolbar across the bottom
+         *
+         * Mobile / Portrait:
+         *     Video Grid
+         *     Toolbar controls / chat composer
+         *     Collaboration Workspace
+         *
+         * JavaScript controls conference visibility but must not
+         * impose flex/grid layout on participantView.
+         */
+
+        participantView.style.removeProperty(
+            "display"
+        );
 
         /*
          * VIDEO CALL V2
