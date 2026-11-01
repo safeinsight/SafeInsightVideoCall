@@ -4416,18 +4416,26 @@ function initializeAdministrator(){
     );
 
     /*
-     * VIDEO CALL V2 — ADMINISTRATOR LAYOUT
+     * VIDEO CALL V2 — ADMINISTRATOR WORKSPACE
      *
-     * administratorView is the horizontal flex container for:
+     * administratorView layout is owned by the responsive CSS.
      *
-     * LEFT  — 50% video grid
-     * RIGHT — 50% collaboration workspace
+     * Desktop:
+     *     Video Grid | Collaboration Workspace
+     *     Toolbar across the bottom
      *
-     * Do not override it with display:block.
+     * Mobile / Portrait:
+     *     Video Grid
+     *     Toolbar controls / chat composer
+     *     Collaboration Workspace
+     *
+     * JavaScript controls visibility only and must not impose
+     * flex/grid layout on administratorView.
      */
 
-    administratorView.style.display =
-        "flex";
+    administratorView.style.removeProperty(
+        "display"
+    );
 
     participantView.style.display =
         "none";
