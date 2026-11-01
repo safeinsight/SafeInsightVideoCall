@@ -2414,6 +2414,17 @@ body.participantMode #participantFooterChatComposer {
 
 /* =========================================================
    PARTICIPANT DESKTOP SHELL
+
+   Desktop order:
+
+       HEADER
+       -----------------------------------------------
+       VIDEO 50%          | WORKSPACE 50%
+       -----------------------------------------------
+       TOOLBAR CONTROLS   | CHAT COMPOSER
+
+   The toolbar remains inside participantView so the
+   same authoritative DOM can stack correctly on mobile.
 ========================================================= */
 
 @media (min-width: 901px) {
@@ -2423,20 +2434,157 @@ body.participantMode #participantFooterChatComposer {
         flex: 0 0 72px;
     }
 
-    body.participantMode #toolbar {
-        width: 100%;
 
+    /*
+     * PARTICIPANT DESKTOP LAYOUT OWNER
+     */
+
+    body.participantMode #participantView {
+        width: 100%;
+        height: 100%;
+
+        min-width: 0;
+        min-height: 0;
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+
+        grid-template-rows:
+            minmax(0, 1fr)
+            64px;
+
+        gap: 0;
+        padding: 0;
+
+        overflow: hidden;
+
+        background: #000;
+    }
+
+
+    /*
+     * LEFT 50% — FOUR-PERSON VIDEO
+     */
+
+    body.participantMode #participantLeft {
+        grid-column: 1;
+        grid-row: 1;
+
+        width: 100%;
+        height: 100%;
+
+        min-width: 0;
+        min-height: 0;
+
+        flex: none;
+
+        display: block;
+
+        border-right: 1px solid #333;
+        border-bottom: 0;
+    }
+
+    body.participantMode #participantVideoPanel {
+        width: 100%;
+        height: 100%;
+
+        min-width: 0;
+        min-height: 0;
+    }
+
+    body.participantMode #participantVideoStage {
+        width: 100%;
+        height: 100%;
+
+        min-width: 0;
+        min-height: 0;
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        grid-template-rows:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    /*
+     * RIGHT 50% — COLLABORATION WORKSPACE
+     */
+
+    body.participantMode #participantWorkspace {
+        grid-column: 2;
+        grid-row: 1;
+
+        width: 100%;
+        height: 100%;
+
+        min-width: 0;
+        min-height: 0;
+
+        flex: none;
+
+        border-left: 0;
+    }
+
+
+    /*
+     * FULL-WIDTH FOOTER
+     *
+     * Left half  = Participant controls
+     * Right half = Permanent chat composer
+     */
+
+    body.participantMode #toolbar {
+        grid-column: 1 / 3;
+        grid-row: 2;
+
+        width: 100%;
         height: 64px;
         min-height: 64px;
 
-        flex: 0 0 64px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+
+        flex: none;
 
         position: relative;
 
         margin: 0;
         padding: 8px 12px;
 
-        justify-content: flex-start;
+        gap: 10px;
+
+        border-top: 2px solid #333;
+
+        background: #000;
+    }
+
+    body.participantMode #participantToolbar {
+        width: 50%;
+        height: 100%;
+
+        flex: 0 0 50%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    body.participantMode #participantFooterChatComposer {
+        width: 50%;
+        height: 100%;
+
+        flex: 0 0 50%;
+
+        display: flex;
+        align-items: center;
     }
 
 }
