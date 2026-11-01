@@ -2381,6 +2381,21 @@ body.participantMode #participantToolbar {
     display: flex;
 }
 
+/*
+ * VIDEO CALL V2
+ *
+ * Legacy Administrator controls remain in the DOM for existing
+ * JavaScript compatibility, but they never belong in the
+ * Participant experience at any viewport size.
+ *
+ * !important intentionally defeats the legacy mobile
+ * #administratorToolbar display:grid !important rule.
+ */
+
+body.participantMode #administratorToolbar {
+    display: none !important;
+}
+
 #participantToolbar .toolbarButton {
     flex: 1 1 0;
 
