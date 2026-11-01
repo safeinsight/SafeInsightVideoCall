@@ -11681,8 +11681,69 @@ leaveButton.addEventListener(
 
 
         /*
-         * Make sure we have both pieces of the private
-         * participant authorization:
+         * VIDEO CALL V2 — ADMINISTRATOR EXIT
+         *
+         * The Administrator is not a conference_participants
+         * record and therefore must never use the Participant
+         * leave RPC.
+         *
+         * Leaving as Administrator ends this browser's local
+         * media/session experience without manufacturing a
+         * Participant identity or changing Participant state.
+         */
+
+        if(isAdministrator){
+
+            if(localStream){
+
+                localStream
+                    .getTracks()
+                    .forEach(
+                        track => track.stop()
+                    );
+
+                localStream =
+                    null;
+
+            }
+
+
+            if(adminVideo.srcObject){
+
+                adminVideo.srcObject
+                    .getTracks()
+                    .forEach(
+                        track => track.stop()
+                    );
+
+                adminVideo.srcObject =
+                    null;
+
+            }
+
+
+            /*
+             * Return to the Video Call entry point without the
+             * Administrator room parameters.
+             *
+             * Authentication remains intact. EXIT ROOM is not
+             * the same action as signing out of Safe Insight.
+             */
+
+            window.location.href =
+                "index.html";
+
+            return;
+        }
+
+
+        /*
+         * PARTICIPANT EXIT
+         *
+         * Preserve the existing proven secure Participant path.
+         *
+         * A Participant must have both pieces of private
+         * authorization:
          *
          *     participant ID
          *     participant credential
