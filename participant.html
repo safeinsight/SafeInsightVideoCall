@@ -380,6 +380,16 @@ input {
     background: #147a14;
 }
 
+/*
+ * Camera / microphone controls use hover as an action preview:
+ *
+ * Green = currently ON.
+ * Hovering green previews OFF by changing to gray.
+ *
+ * Gray = currently OFF.
+ * Hovering gray previews ON by changing to green.
+ */
+
 #adminCameraButton {
     background: #777;
     color: #fff;
@@ -388,6 +398,22 @@ input {
 #adminCameraButton.logoActive {
     background: #147a14;
     color: #fff;
+}
+
+#adminCameraButton:not(.logoActive):hover {
+    background: #147a14 !important;
+}
+
+#adminCameraButton.logoActive:hover {
+    background: #777 !important;
+}
+
+#micButton:not(.active):hover {
+    background: #147a14 !important;
+}
+
+#micButton.active:hover {
+    background: #777 !important;
 }
 
 #micButtonParticipant:not(.active),
@@ -400,6 +426,16 @@ input {
 #cameraButtonParticipant.active {
     background: #147a14;
     color: #fff;
+}
+
+#micButtonParticipant:not(.active):hover,
+#cameraButtonParticipant:not(.active):hover {
+    background: #147a14 !important;
+}
+
+#micButtonParticipant.active:hover,
+#cameraButtonParticipant.active:hover {
+    background: #777 !important;
 }
 
 .toolbarButton.danger {
