@@ -13989,6 +13989,109 @@ micButtonParticipant.addEventListener(
 
 
         /*
+         * Determine the requested state WITHOUT changing
+         * the local microphone yet.
+         *
+         * The database must authorize the change first.
+         */
+
+        const requestedMicOn =
+            !tracks[0].enabled;
+
+
+        const {
+            error
+        } =
+        await supabaseClient.rpc(
+            "set_conference_participant_microphone",
+            {
+                requested_participant_id:
+                    window.myParticipantId,
+
+                supplied_credential:
+                    participantCredential,
+
+                requested_mic_on:
+                    requestedMicOn
+            }
+        );
+
+
+        if(error){
+
+            console.error(
+                "SECURE PARTICIPANT MIC ERROR:",
+                error
+            );
+
+            /*
+             * If an administrator locked the microphone
+             * before this request reached the database,
+             * the authoritative RPC rejects the ON request.
+             *
+             * Do not change the local audio track.
+             */
+
+            return;
+        }
+
+
+        /*
+         * The credential-protected database operation
+         * succeeded.
+         *
+         * Only now apply the authorized state locally.
+         */
+
+        tracks.forEach(
+            track => {
+
+                track.enabled =
+                    requestedMicOn;
+
+            }
+        );
+
+
+        micButtonParticipant.textContent =
+            "🎤 Mic";
+
+
+        micButtonParticipant.classList.toggle(
+            "active",
+            requestedMicOn
+        );
+
+
+        console.log(
+            "Secure participant microphone change:",
+            requestedMicOn
+        );
+
+    }
+);
+
+
+cameraButtonParticipant.addEventListener(
+
+            showCustomAlert(
+                CUSTOM_ALERT_MESSAGES.sessionNotFound
+            );
+
+            return;
+        }
+
+
+        const tracks =
+            localStream.getAudioTracks();
+
+
+        if(!tracks.length){
+            return;
+        }
+
+
+        /*
          * TEMPORARY MOBILE MICROPHONE DIAGNOSTIC
          *
          * Capture each important state transition so we can
