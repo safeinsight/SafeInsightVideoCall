@@ -8051,6 +8051,42 @@ async function handleAdminWebRTCSignal(
         );
 
 
+        /*
+         * VIDEO CALL V2 — LATE-JOIN CAMERA STATE SYNCHRONIZATION
+         *
+         * participant-ready means this participant browser is now
+         * actively listening to conference signaling.
+         *
+         * The Administrator owns the authoritative camera state.
+         * Report the CURRENT state directly to this participant so
+         * a late join never has to wait for the Administrator to
+         * toggle the camera before its Administrator tile is correct.
+         *
+         * Camera ON  -> Administrator video
+         * Camera OFF -> Safe Insight logo
+         *
+         * This is intentionally targeted only to the participant
+         * that just announced readiness. Existing participants
+         * already received the state when it last changed.
+         */
+
+        await sendWebRTCSignal({
+
+            type:
+                "administrator-camera-state",
+
+            senderId:
+                administratorViewerId,
+
+            targetId:
+                participantId,
+
+            cameraOn:
+                administratorCameraOn
+
+        });
+
+
         return;
 
     }
