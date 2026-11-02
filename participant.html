@@ -5626,7 +5626,6 @@ function subscribeToMyParticipant(participantId){
         ){
 
             return;
-
         }
 
 
@@ -5649,6 +5648,73 @@ function subscribeToMyParticipant(participantId){
 
             const shouldStartParticipantWebRTC =
                 participantView.style.display !== "flex";
+
+
+            /*
+             * PARTICIPANT MEDIA STATE SYNCHRONIZATION
+             *
+             * Realtime may deliver the authoritative database
+             * update before the participant's local click handler
+             * resumes after its secure RPC.
+             *
+             * Apply the authoritative media state to the local
+             * tracks and controls BEFORE enterConference() refreshes
+             * the Participant interface. This prevents the toolbar
+             * from displaying the previous local track state for
+             * one click.
+             */
+
+            if(localStream){
+
+                const videoTracks =
+                    localStream.getVideoTracks();
+
+                const audioTracks =
+                    localStream.getAudioTracks();
+
+
+                videoTracks.forEach(
+                    track => {
+
+                        track.enabled =
+                            participant.camera_on !== false;
+
+                    }
+                );
+
+
+                audioTracks.forEach(
+                    track => {
+
+                        track.enabled =
+                            participant.mic_on === true &&
+                            participant.mic_locked !== true;
+
+                    }
+                );
+
+            }
+
+
+            cameraButtonParticipant.textContent =
+                "📹 Camera";
+
+            cameraButtonParticipant.classList.toggle(
+                "active",
+                participant.camera_on !== false
+            );
+
+
+            micButtonParticipant.textContent =
+                participant.mic_locked === true
+                ? "🔇 LOCKED"
+                : "🎤 Mic";
+
+            micButtonParticipant.classList.toggle(
+                "active",
+                participant.mic_on === true &&
+                participant.mic_locked !== true
+            );
 
 
             console.log(
