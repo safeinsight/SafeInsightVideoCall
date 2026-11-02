@@ -3334,16 +3334,17 @@ body.participantMode #participantFooterChatComposer {
 
                     <button
                         class="toolbarButton"
-                        id="cameraButtonParticipant"
-                    >
-                        📹 Camera ON
-                    </button>
-
-                    <button
-                        class="toolbarButton"
                         id="micButtonParticipant"
                     >
                         🎤 Mic
+                    </button>
+
+                    
+                    <button
+                        class="toolbarButton"
+                        id="cameraButtonParticipant"
+                    >
+                        📹 Camera
                     </button>
 
                     <button
@@ -5121,9 +5122,7 @@ async function restoreParticipantSession(){
 
 
         cameraButtonParticipant.textContent =
-            data.camera_on !== false
-            ? "📹 Camera ON"
-            : "📹 Camera OFF";
+            "📹 Camera";
 
 
         cameraButtonParticipant.classList.toggle(
@@ -5133,12 +5132,9 @@ async function restoreParticipantSession(){
 
 
         micButtonParticipant.textContent =
-            (
-                data.mic_on === true &&
-                data.mic_locked !== true
-            )
-            ? "🎤 Mic ON"
-            : "🔇 Mic OFF";
+            data.mic_locked === true
+            ? "🔇 LOCKED"
+            : "🎤 Mic";
 
 
         micButtonParticipant.classList.toggle(
@@ -7396,9 +7392,7 @@ if(
 
 
     cameraButtonParticipant.textContent =
-        signal.enabled
-        ? "📹 Camera ON"
-        : "📹 Camera OFF";
+        "📹 Camera";
 
 
     cameraButtonParticipant.classList.toggle(
@@ -7502,9 +7496,7 @@ if(
 
 
     micButtonParticipant.textContent =
-        signal.enabled
-        ? "🎤 Mic ON"
-        : "🔇 Mic OFF";
+        "🎤 Mic";
 
 
     micButtonParticipant.classList.toggle(
@@ -8944,9 +8936,7 @@ function attachLocalParticipantVideo(){
         );
 
         cameraButtonParticipant.textContent =
-            cameraOn
-            ? "📹 Camera ON"
-            : "📹 Camera OFF";
+            "📹 Camera";
 
     }
 
@@ -8961,9 +8951,7 @@ function attachLocalParticipantVideo(){
         );
 
         micButtonParticipant.textContent =
-            micOn
-            ? "🎤 Mic ON"
-            : "🔇 Mic OFF";
+            "🎤 Mic";
 
     }
 
@@ -12992,9 +12980,7 @@ micButtonParticipant.addEventListener(
 
 
         micButtonParticipant.textContent =
-            requestedMicOn
-            ? "🎤 Mic ON"
-            : "🔇 Mic OFF";
+            "🎤 Mic";
 
 
         micButtonParticipant.classList.toggle(
@@ -13142,9 +13128,7 @@ cameraButtonParticipant.addEventListener(
 
 
         cameraButtonParticipant.textContent =
-            requestedCameraOn
-            ? "📹 Camera ON"
-            : "📹 Camera OFF";
+            "📹 Camera";
 
 
         cameraButtonParticipant.classList.toggle(
