@@ -13975,6 +13975,19 @@ micButtonParticipant.addEventListener(
 
 
         /*
+         * TEMPORARY MOBILE MICROPHONE DIAGNOSTIC
+         *
+         * Capture each important state transition so we can
+         * determine whether the mobile browser, RPC, local
+         * MediaStream track, or later synchronization is
+         * changing the microphone state unexpectedly.
+         */
+
+        const diagnosticBefore =
+            tracks[0].enabled;
+
+
+        /*
          * Determine the requested state WITHOUT changing
          * the local microphone yet.
          *
@@ -13986,6 +13999,7 @@ micButtonParticipant.addEventListener(
 
 
         const {
+            data,
             error
         } =
         await supabaseClient.rpc(
@@ -14003,11 +14017,27 @@ micButtonParticipant.addEventListener(
         );
 
 
+        const diagnosticAfterRpc =
+            tracks[0].enabled;
+
+
         if(error){
 
             console.error(
                 "SECURE PARTICIPANT MIC ERROR:",
                 error
+            );
+
+            showCustomAlert(
+                "MIC DIAGNOSTIC — RPC ERROR\n\n" +
+                "Before click: " +
+                diagnosticBefore +
+                "\nRequested: " +
+                requestedMicOn +
+                "\nAfter RPC: " +
+                diagnosticAfterRpc +
+                "\n\n" +
+                error.message
             );
 
             /*
@@ -14039,6 +14069,10 @@ micButtonParticipant.addEventListener(
         );
 
 
+        const diagnosticAfterApply =
+            tracks[0].enabled;
+
+
         micButtonParticipant.textContent =
             "🎤 Mic";
 
@@ -14051,7 +14085,55 @@ micButtonParticipant.addEventListener(
 
         console.log(
             "Secure participant microphone change:",
-            requestedMicOn
+            requestedMicOn,
+            "RPC result:",
+            data
+        );
+
+
+        /*
+         * Give Realtime/state synchronization a moment to run.
+         *
+         * If something changes the microphone again after this
+         * click handler succeeds, the delayed values will expose it.
+         */
+
+        window.setTimeout(
+            function(){
+
+                const currentTracks =
+                    localStream
+                    ? localStream.getAudioTracks()
+                    : [];
+
+                const diagnosticDelayed =
+                    currentTracks.length
+                    ? currentTracks[0].enabled
+                    : "NO AUDIO TRACK";
+
+                const diagnosticButtonActive =
+                    micButtonParticipant.classList.contains(
+                        "active"
+                    );
+
+                showCustomAlert(
+                    "MIC DIAGNOSTIC\n\n" +
+                    "Before click: " +
+                    diagnosticBefore +
+                    "\nRequested: " +
+                    requestedMicOn +
+                    "\nAfter RPC: " +
+                    diagnosticAfterRpc +
+                    "\nAfter local apply: " +
+                    diagnosticAfterApply +
+                    "\nAfter 750ms: " +
+                    diagnosticDelayed +
+                    "\nButton active: " +
+                    diagnosticButtonActive
+                );
+
+            },
+            750
         );
 
     }
