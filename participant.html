@@ -4014,6 +4014,33 @@ const pendingParticipantIceCandidatesByViewer =
     new Map();
 
 
+/*
+ * VIDEO CALL V2 — PARTICIPANT MESH
+ *
+ * These connections are completely separate from
+ * participantPeerConnections.
+ *
+ * participantPeerConnections:
+ *     This Participant publishes camera/microphone media to
+ *     Administrator/viewer browsers.
+ *
+ * participantMeshPeerConnections:
+ *     This Participant exchanges camera/microphone media directly
+ *     with the other approved Participants in the four-person call.
+ */
+const participantMeshPeerConnections =
+    new Map();
+
+const pendingParticipantMeshIceCandidates =
+    new Map();
+
+const remoteParticipantMeshStreams =
+    new Map();
+
+const approvedParticipantRoster =
+    new Map();
+
+
 let mirrorPeerConnection =
     null;
 
@@ -6100,6 +6127,57 @@ if(
 
 
 /*
+ * VIDEO CALL V2 — APPROVED PARTICIPANT ROSTER
+ *
+ * The Administrator publishes the currently approved conference
+ * roster after admission changes and whenever a Participant browser
+ * announces that it is ready.
+ */
+if(
+    !isAdministrator &&
+    signal.type ===
+        "participant-roster" &&
+    signal.targetId ===
+        "participants"
+){
+
+    await applyApprovedParticipantRoster(
+        signal
+    );
+
+    return;
+}
+
+
+/*
+ * VIDEO CALL V2 — PARTICIPANT-TO-PARTICIPANT SIGNALING
+ *
+ * Keep peer offers, answers, and ICE completely separate from the
+ * existing Administrator/viewer WebRTC handler.
+ */
+if(
+    !isAdministrator &&
+    signal.targetId ===
+        window.myParticipantId &&
+    (
+        signal.type ===
+            "participant-peer-offer" ||
+        signal.type ===
+            "participant-peer-answer" ||
+        signal.type ===
+            "participant-peer-ice"
+    )
+){
+
+    await handleParticipantMeshSignal(
+        signal
+    );
+
+    return;
+}
+
+
+/*
  * Participant receives administrator signals.
  *
  * Media offers and ICE candidates from Admin A, Admin B, and
@@ -7212,6 +7290,969 @@ async function createParticipantPeerConnectionForViewer(
 
 
     return peerConnection;
+
+}
+
+
+/*
+ * =========================================================
+ * VIDEO CALL V2 — PARTICIPANT-TO-PARTICIPANT WEBRTC
+ * =========================================================
+ */
+
+function closeParticipantMeshPeer(
+    peerId
+){
+
+    const peerConnection =
+        participantMeshPeerConnections.get(
+            peerId
+        );
+
+
+    if(peerConnection){
+
+        peerConnection.onicecandidate =
+            null;
+
+        peerConnection.ontrack =
+            null;
+
+        peerConnection.onconnectionstatechange =
+            null;
+
+        peerConnection.close();
+
+    }
+
+
+    participantMeshPeerConnections.delete(
+        peerId
+    );
+
+    pendingParticipantMeshIceCandidates.delete(
+        peerId
+    );
+
+    remoteParticipantMeshStreams.delete(
+        peerId
+    );
+
+}
+
+
+function renderParticipantMeshTiles(){
+
+    const remoteParticipants =
+        Array.from(
+            approvedParticipantRoster.values()
+        )
+        .filter(
+            participant =>
+                participant.id !==
+                window.myParticipantId
+        )
+        .slice(
+            0,
+            2
+        );
+
+
+    const remoteTiles = [
+        document.getElementById(
+            "participantRemoteTile2"
+        ),
+        document.getElementById(
+            "participantRemoteTile3"
+        )
+    ];
+
+
+    remoteTiles.forEach(
+        (
+            tile,
+            index
+        ) => {
+
+            if(!tile){
+                return;
+            }
+
+
+            const participant =
+                remoteParticipants[index];
+
+
+            tile.replaceChildren();
+
+
+            if(!participant){
+
+                const waiting =
+                    document.createElement(
+                        "div"
+                    );
+
+                waiting.className =
+                    "videoCallParticipantWaiting";
+
+                waiting.textContent =
+                    "Waiting for Participant";
+
+
+                const label =
+                    document.createElement(
+                        "div"
+                    );
+
+                label.className =
+                    "videoCallParticipantTileLabel";
+
+                label.textContent =
+                    "Participant";
+
+
+                tile.append(
+                    waiting,
+                    label
+                );
+
+                return;
+            }
+
+
+            const remoteStream =
+                remoteParticipantMeshStreams.get(
+                    participant.id
+                );
+
+
+            if(remoteStream){
+
+                const video =
+                    document.createElement(
+                        "video"
+                    );
+
+                video.autoplay =
+                    true;
+
+                video.playsInline =
+                    true;
+
+                video.muted =
+                    false;
+
+                video.srcObject =
+                    remoteStream;
+
+                video.setAttribute(
+                    "aria-label",
+                    participant.name ||
+                    "Participant"
+                );
+
+
+                tile.appendChild(
+                    video
+                );
+
+
+                video
+                    .play()
+                    .catch(
+                        function(error){
+
+                            if(
+                                error.name !==
+                                "AbortError"
+                            ){
+
+                                console.warn(
+                                    "Remote Participant autoplay:",
+                                    participant.id,
+                                    error
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                if(
+                    participant.cameraOn ===
+                    false
+                ){
+
+                    const cameraOff =
+                        document.createElement(
+                            "div"
+                        );
+
+                    cameraOff.className =
+                        "videoCallParticipantWaiting";
+
+                    cameraOff.textContent =
+                        "Camera Off";
+
+                    cameraOff.style.position =
+                        "absolute";
+
+                    cameraOff.style.inset =
+                        "0";
+
+                    cameraOff.style.display =
+                        "flex";
+
+                    cameraOff.style.alignItems =
+                        "center";
+
+                    cameraOff.style.justifyContent =
+                        "center";
+
+                    cameraOff.style.background =
+                        "#111";
+
+                    cameraOff.style.zIndex =
+                        "3";
+
+
+                    tile.appendChild(
+                        cameraOff
+                    );
+
+                }
+
+            }else{
+
+                const connecting =
+                    document.createElement(
+                        "div"
+                    );
+
+                connecting.className =
+                    "videoCallParticipantWaiting";
+
+                connecting.textContent =
+                    "Connecting...";
+
+                tile.appendChild(
+                    connecting
+                );
+
+            }
+
+
+            const label =
+                document.createElement(
+                    "div"
+                );
+
+            label.className =
+                "videoCallParticipantTileLabel";
+
+            label.textContent =
+                participant.name ||
+                "Participant";
+
+            tile.appendChild(
+                label
+            );
+
+        }
+    );
+
+}
+
+
+async function createParticipantMeshPeerConnection(
+    peerId
+){
+
+    if(
+        !peerId ||
+        peerId === window.myParticipantId
+    ){
+
+        return null;
+
+    }
+
+
+    const existingPeerConnection =
+        participantMeshPeerConnections.get(
+            peerId
+        );
+
+
+    if(existingPeerConnection){
+
+        return existingPeerConnection;
+
+    }
+
+
+    if(!localStream){
+
+        console.error(
+            "Cannot create Participant peer connection without localStream."
+        );
+
+        return null;
+
+    }
+
+
+    const turnReady =
+        await ensureTurnCredentials();
+
+
+    if(!turnReady){
+
+        console.warn(
+            "Participant mesh TURN fallback unavailable. Continuing with STUN:",
+            peerId
+        );
+
+    }
+
+
+    const peerConnection =
+        new RTCPeerConnection(
+            rtcConfiguration
+        );
+
+
+    participantMeshPeerConnections.set(
+        peerId,
+        peerConnection
+    );
+
+
+    localStream
+        .getTracks()
+        .forEach(
+            track => {
+
+                peerConnection.addTrack(
+                    track,
+                    localStream
+                );
+
+            }
+        );
+
+
+    const remoteStream =
+        new MediaStream();
+
+
+    remoteParticipantMeshStreams.set(
+        peerId,
+        remoteStream
+    );
+
+
+    peerConnection.ontrack =
+        function(event){
+
+            const alreadyPresent =
+                remoteStream
+                    .getTracks()
+                    .some(
+                        track =>
+                            track.id ===
+                            event.track.id
+                    );
+
+
+            if(!alreadyPresent){
+
+                remoteStream.addTrack(
+                    event.track
+                );
+
+            }
+
+
+            event.track.addEventListener(
+                "ended",
+                function(){
+
+                    renderParticipantMeshTiles();
+
+                }
+            );
+
+
+            renderParticipantMeshTiles();
+
+        };
+
+
+    peerConnection.onicecandidate =
+        async function(event){
+
+            if(!event.candidate){
+                return;
+            }
+
+
+            await sendWebRTCSignal({
+
+                type:
+                    "participant-peer-ice",
+
+                senderId:
+                    window.myParticipantId,
+
+                targetId:
+                    peerId,
+
+                participantId:
+                    window.myParticipantId,
+
+                candidate:
+                    event.candidate
+
+            });
+
+        };
+
+
+    peerConnection.onconnectionstatechange =
+        function(){
+
+            console.log(
+                "PARTICIPANT PEER CONNECTION STATE:",
+                peerId,
+                peerConnection.connectionState
+            );
+
+
+            if(
+                peerConnection.connectionState ===
+                    "failed" ||
+                peerConnection.connectionState ===
+                    "closed"
+            ){
+
+                closeParticipantMeshPeer(
+                    peerId
+                );
+
+                renderParticipantMeshTiles();
+
+            }
+
+        };
+
+
+    return peerConnection;
+
+}
+
+
+async function startParticipantMeshConnection(
+    peerId
+){
+
+    if(
+        participantMeshPeerConnections.has(
+            peerId
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const peerConnection =
+        await createParticipantMeshPeerConnection(
+            peerId
+        );
+
+
+    if(!peerConnection){
+        return;
+    }
+
+
+    const offer =
+        await peerConnection.createOffer();
+
+
+    await peerConnection.setLocalDescription(
+        offer
+    );
+
+
+    await sendWebRTCSignal({
+
+        type:
+            "participant-peer-offer",
+
+        senderId:
+            window.myParticipantId,
+
+        targetId:
+            peerId,
+
+        participantId:
+            window.myParticipantId,
+
+        offer:
+            offer
+
+    });
+
+
+    console.log(
+        "PARTICIPANT PEER OFFER SENT:",
+        window.myParticipantId,
+        "->",
+        peerId
+    );
+
+}
+
+
+async function applyApprovedParticipantRoster(
+    signal
+){
+
+    if(
+        !Array.isArray(
+            signal.participants
+        ) ||
+        !window.myParticipantId
+    ){
+
+        return;
+
+    }
+
+
+    const nextRoster =
+        new Map();
+
+
+    signal.participants.forEach(
+        participant => {
+
+            if(
+                participant &&
+                participant.id
+            ){
+
+                nextRoster.set(
+                    participant.id,
+                    participant
+                );
+
+            }
+
+        }
+    );
+
+
+    /*
+     * If a Participant just refreshed, its database identity is
+     * intentionally unchanged but its browser transport is new.
+     *
+     * Existing peers must therefore discard only that Participant's
+     * stale browser connection.
+     */
+    if(
+        signal.refreshParticipantId &&
+        signal.refreshParticipantId !==
+            window.myParticipantId
+    ){
+
+        closeParticipantMeshPeer(
+            signal.refreshParticipantId
+        );
+
+    }
+
+
+    /*
+     * Remove peers that are no longer in the Administrator's
+     * approved roster.
+     */
+    Array.from(
+        participantMeshPeerConnections.keys()
+    )
+    .forEach(
+        peerId => {
+
+            if(
+                !nextRoster.has(
+                    peerId
+                )
+            ){
+
+                closeParticipantMeshPeer(
+                    peerId
+                );
+
+            }
+
+        }
+    );
+
+
+    approvedParticipantRoster.clear();
+
+
+    nextRoster.forEach(
+        (
+            participant,
+            participantId
+        ) => {
+
+            approvedParticipantRoster.set(
+                participantId,
+                participant
+            );
+
+        }
+    );
+
+
+    renderParticipantMeshTiles();
+
+
+    /*
+     * Deterministic offer ownership prevents both Participants
+     * from creating competing offers at the same time.
+     *
+     * The lexicographically smaller Participant ID creates the
+     * offer. The other Participant waits for it.
+     */
+    const remoteParticipants =
+        Array.from(
+            approvedParticipantRoster.values()
+        )
+        .filter(
+            participant =>
+                participant.id !==
+                window.myParticipantId
+        );
+
+
+    for(
+        const participant
+        of remoteParticipants
+    ){
+
+        if(
+            String(
+                window.myParticipantId
+            ) <
+            String(
+                participant.id
+            )
+        ){
+
+            await startParticipantMeshConnection(
+                participant.id
+            );
+
+        }
+
+    }
+
+}
+
+
+async function handleParticipantMeshSignal(
+    signal
+){
+
+    const peerId =
+        signal.senderId;
+
+
+    if(
+        !peerId ||
+        peerId === window.myParticipantId
+    ){
+
+        return;
+
+    }
+
+
+    /*
+     * Do not accept Participant media from an identity that is not
+     * present in the Administrator-provided approved roster.
+     */
+    if(
+        !approvedParticipantRoster.has(
+            peerId
+        )
+    ){
+
+        console.warn(
+            "Ignoring Participant peer signal from unapproved roster identity:",
+            peerId
+        );
+
+        return;
+
+    }
+
+
+    if(
+        signal.type ===
+        "participant-peer-ice"
+    ){
+
+        if(!signal.candidate){
+            return;
+        }
+
+
+        const peerConnection =
+            participantMeshPeerConnections.get(
+                peerId
+            );
+
+
+        if(
+            !peerConnection ||
+            !peerConnection.remoteDescription
+        ){
+
+            let pendingCandidates =
+                pendingParticipantMeshIceCandidates.get(
+                    peerId
+                );
+
+
+            if(!pendingCandidates){
+
+                pendingCandidates =
+                    [];
+
+                pendingParticipantMeshIceCandidates.set(
+                    peerId,
+                    pendingCandidates
+                );
+
+            }
+
+
+            pendingCandidates.push(
+                signal.candidate
+            );
+
+            return;
+
+        }
+
+
+        try{
+
+            await peerConnection.addIceCandidate(
+                signal.candidate
+            );
+
+        }catch(error){
+
+            console.error(
+                "PARTICIPANT PEER ICE ERROR:",
+                peerId,
+                error
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    if(
+        signal.type ===
+        "participant-peer-offer"
+    ){
+
+        /*
+         * A fresh offer replaces only this peer's previous browser
+         * transport. Other Participant connections remain untouched.
+         */
+        closeParticipantMeshPeer(
+            peerId
+        );
+
+
+        const peerConnection =
+            await createParticipantMeshPeerConnection(
+                peerId
+            );
+
+
+        if(!peerConnection){
+            return;
+        }
+
+
+        try{
+
+            await peerConnection.setRemoteDescription(
+                signal.offer
+            );
+
+
+            const pendingCandidates =
+                pendingParticipantMeshIceCandidates.get(
+                    peerId
+                ) || [];
+
+
+            for(
+                const candidate
+                of pendingCandidates
+            ){
+
+                await peerConnection.addIceCandidate(
+                    candidate
+                );
+
+            }
+
+
+            pendingParticipantMeshIceCandidates.delete(
+                peerId
+            );
+
+
+            const answer =
+                await peerConnection.createAnswer();
+
+
+            await peerConnection.setLocalDescription(
+                answer
+            );
+
+
+            await sendWebRTCSignal({
+
+                type:
+                    "participant-peer-answer",
+
+                senderId:
+                    window.myParticipantId,
+
+                targetId:
+                    peerId,
+
+                participantId:
+                    window.myParticipantId,
+
+                answer:
+                    answer
+
+            });
+
+
+            console.log(
+                "PARTICIPANT PEER ANSWER SENT:",
+                window.myParticipantId,
+                "->",
+                peerId
+            );
+
+        }catch(error){
+
+            console.error(
+                "PARTICIPANT PEER OFFER ERROR:",
+                peerId,
+                error
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    if(
+        signal.type ===
+        "participant-peer-answer"
+    ){
+
+        const peerConnection =
+            participantMeshPeerConnections.get(
+                peerId
+            );
+
+
+        if(!peerConnection){
+
+            console.warn(
+                "Participant peer answer arrived without a connection:",
+                peerId
+            );
+
+            return;
+
+        }
+
+
+        try{
+
+            await peerConnection.setRemoteDescription(
+                signal.answer
+            );
+
+
+            const pendingCandidates =
+                pendingParticipantMeshIceCandidates.get(
+                    peerId
+                ) || [];
+
+
+            for(
+                const candidate
+                of pendingCandidates
+            ){
+
+                await peerConnection.addIceCandidate(
+                    candidate
+                );
+
+            }
+
+
+            pendingParticipantMeshIceCandidates.delete(
+                peerId
+            );
+
+
+            console.log(
+                "PARTICIPANT PEER ANSWER ACCEPTED:",
+                peerId
+            );
+
+        }catch(error){
+
+            console.error(
+                "PARTICIPANT PEER ANSWER ERROR:",
+                peerId,
+                error
+            );
+
+        }
+
+    }
 
 }
 
