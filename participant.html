@@ -4107,6 +4107,23 @@ let participantScreenStream =
 
 let webRTCSignalingReady =
     false;
+
+/*
+ * VIDEO CALL V2 — PARTICIPANT WEBRTC STARTUP STATE
+ *
+ * Conference layout state must never be used to infer whether
+ * Participant WebRTC has already started.
+ *
+ * Responsive CSS owns participantView display. Realtime database
+ * updates such as camera/microphone changes may reassert the
+ * approved conference UI without representing a new browser
+ * transport.
+ *
+ * This flag therefore records the browser-transport fact directly.
+ * It resets naturally when the browser itself reloads.
+ */
+let participantWebRTCStarted =
+    false;
     
 let mirrorCameraOn =
     true;
@@ -6324,6 +6341,30 @@ async function startParticipantWebRTC(
     participant
 ){
 
+    /*
+     * VIDEO CALL V2 — IDEMPOTENT PARTICIPANT WEBRTC STARTUP
+     *
+     * An approved participant receives Realtime UPDATE events for
+     * ordinary state changes such as microphone and camera state.
+     *
+     * Those updates may reassert the approved conference UI, but
+     * they must NEVER announce participant-ready again from the
+     * same browser transport.
+     *
+     * participant-ready has transport-level meaning: other viewers
+     * are allowed to treat it as evidence that this Participant has
+     * a new browser transport and replace stale connections.
+     */
+    if(participantWebRTCStarted){
+
+        console.log(
+            "Participant WebRTC already started. Preserving existing transport."
+        );
+
+        return;
+    }
+
+
     console.log(
         "Starting participant multi-viewer WebRTC:",
         participant
@@ -6337,7 +6378,6 @@ async function startParticipantWebRTC(
         );
 
         return;
-
     }
 
 
@@ -6348,8 +6388,19 @@ async function startParticipantWebRTC(
         );
 
         return;
-
     }
+
+
+    /*
+     * Establish the browser-transport fact BEFORE the asynchronous
+     * TURN/signaling startup work begins.
+     *
+     * This prevents two closely spaced authoritative APPROVED
+     * observations from racing each other and both sending
+     * participant-ready.
+     */
+    participantWebRTCStarted =
+        true;
 
 
     /*
