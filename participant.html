@@ -428,14 +428,28 @@ input {
     color: #fff;
 }
 
-#micButtonParticipant:not(.active):hover,
-#cameraButtonParticipant:not(.active):hover {
-    background: #147a14 !important;
-}
+/*
+ * Participant Camera / Mic hover previews belong only to devices
+ * that actually support hover.
+ *
+ * Touch browsers can latch :hover after a tap. If these rules are
+ * allowed to run on phones/tablets, an active green media button
+ * can remain visually gray even though its authoritative state and
+ * MediaStream track are correctly ON.
+ */
 
-#micButtonParticipant.active:hover,
-#cameraButtonParticipant.active:hover {
-    background: #777 !important;
+@media (hover: hover) and (pointer: fine) {
+
+    #micButtonParticipant:not(.active):hover,
+    #cameraButtonParticipant:not(.active):hover {
+        background: #147a14 !important;
+    }
+
+    #micButtonParticipant.active:hover,
+    #cameraButtonParticipant.active:hover {
+        background: #777 !important;
+    }
+
 }
 
 .toolbarButton.danger {
