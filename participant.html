@@ -3238,6 +3238,25 @@ body.participantMode #participantFooterChatComposer {
                                 Administrator
                             </div>
 
+                            <div
+                                class="tileStatus"
+                                id="participantAdministratorMediaStatus"
+                            >
+
+                                <div
+                                    class="statusIcon off"
+                                    id="participantAdministratorMicStatus"
+                                    aria-label="Administrator microphone off"
+                                ></div>
+
+                                <div
+                                    class="statusIcon off"
+                                    id="participantAdministratorCameraStatus"
+                                    aria-label="Administrator camera off"
+                                ></div>
+
+                            </div>
+
                         </div>
 
 
@@ -3263,6 +3282,25 @@ body.participantMode #participantFooterChatComposer {
 
                             <div class="videoCallParticipantTileLabel">
                                 You
+                            </div>
+
+                            <div
+                                class="tileStatus"
+                                id="participantLocalMediaStatus"
+                            >
+
+                                <div
+                                    class="statusIcon off"
+                                    id="participantLocalMicStatus"
+                                    aria-label="Your microphone is off"
+                                ></div>
+
+                                <div
+                                    class="statusIcon off"
+                                    id="participantLocalCameraStatus"
+                                    aria-label="Your camera is off"
+                                ></div>
+
                             </div>
 
                         </div>
@@ -7570,8 +7608,80 @@ function renderParticipantMeshTiles(){
                 participant.name ||
                 "Participant";
 
-            tile.appendChild(
-                label
+
+            /*
+             * VIDEO CALL V2 — READ-ONLY MEDIA STATUS
+             *
+             * The Administrator-published approved roster owns
+             * these media-state facts. Participant browsers only
+             * display them; these icons provide no control authority.
+             */
+            const mediaStatus =
+                document.createElement(
+                    "div"
+                );
+
+            mediaStatus.className =
+                "tileStatus";
+
+
+            const micStatus =
+                document.createElement(
+                    "div"
+                );
+
+            micStatus.className =
+                "statusIcon " +
+                (
+                    participant.micOn === true
+                    ? "on"
+                    : "off"
+                );
+
+            micStatus.innerHTML =
+                getMicSVG();
+
+            micStatus.setAttribute(
+                "aria-label",
+                participant.micOn === true
+                ? "Microphone on"
+                : "Microphone off"
+            );
+
+
+            const cameraStatus =
+                document.createElement(
+                    "div"
+                );
+
+            cameraStatus.className =
+                "statusIcon " +
+                (
+                    participant.cameraOn !== false
+                    ? "on"
+                    : "off"
+                );
+
+            cameraStatus.innerHTML =
+                getCameraSVG();
+
+            cameraStatus.setAttribute(
+                "aria-label",
+                participant.cameraOn !== false
+                ? "Camera on"
+                : "Camera off"
+            );
+
+
+            mediaStatus.append(
+                micStatus,
+                cameraStatus
+            );
+
+
+            tile.append(
+                label,
+                mediaStatus
             );
 
         }
@@ -8309,6 +8419,36 @@ async function handleParticipantWebRTCSignal(
                 "video"
             );
 
+        const administratorCameraStatus =
+            document.getElementById(
+                "participantAdministratorCameraStatus"
+            );
+
+
+        if(administratorCameraStatus){
+
+            administratorCameraStatus.innerHTML =
+                getCameraSVG();
+
+            administratorCameraStatus.classList.toggle(
+                "on",
+                signal.cameraOn === true
+            );
+
+            administratorCameraStatus.classList.toggle(
+                "off",
+                signal.cameraOn !== true
+            );
+
+            administratorCameraStatus.setAttribute(
+                "aria-label",
+                signal.cameraOn === true
+                    ? "Administrator camera on"
+                    : "Administrator camera off"
+            );
+
+        }
+
 
         if(signal.cameraOn){
 
@@ -8374,6 +8514,62 @@ async function handleParticipantWebRTCSignal(
         console.log(
             "ADMINISTRATOR CAMERA STATE APPLIED:",
             signal.cameraOn
+                ? "ON"
+                : "OFF"
+        );
+
+
+        return;
+    }
+
+
+    /*
+     * VIDEO CALL V2 — AUTHORITATIVE ADMINISTRATOR MICROPHONE STATE
+     *
+     * As with camera state, participants display the Administrator's
+     * explicitly reported microphone state rather than attempting to
+     * infer intentional microphone state from WebRTC transport.
+     */
+
+    if(
+        signal.type ===
+        "administrator-microphone-state"
+    ){
+
+        const administratorMicStatus =
+            document.getElementById(
+                "participantAdministratorMicStatus"
+            );
+
+
+        if(administratorMicStatus){
+
+            administratorMicStatus.innerHTML =
+                getMicSVG();
+
+            administratorMicStatus.classList.toggle(
+                "on",
+                signal.micOn === true
+            );
+
+            administratorMicStatus.classList.toggle(
+                "off",
+                signal.micOn !== true
+            );
+
+            administratorMicStatus.setAttribute(
+                "aria-label",
+                signal.micOn === true
+                    ? "Administrator microphone on"
+                    : "Administrator microphone off"
+            );
+
+        }
+
+
+        console.log(
+            "ADMINISTRATOR MICROPHONE STATE APPLIED:",
+            signal.micOn
                 ? "ON"
                 : "OFF"
         );
@@ -8456,6 +8652,37 @@ if(
     );
 
 
+    const localCameraStatus =
+        document.getElementById(
+            "participantLocalCameraStatus"
+        );
+
+
+    if(localCameraStatus){
+
+        localCameraStatus.innerHTML =
+            getCameraSVG();
+
+        localCameraStatus.classList.toggle(
+            "on",
+            signal.enabled === true
+        );
+
+        localCameraStatus.classList.toggle(
+            "off",
+            signal.enabled !== true
+        );
+
+        localCameraStatus.setAttribute(
+            "aria-label",
+            signal.enabled === true
+                ? "Your camera is on"
+                : "Your camera is off"
+        );
+
+    }
+
+
     console.log(
         "PARTICIPANT CAMERA CONTROL:",
         signal.enabled
@@ -8474,7 +8701,6 @@ if(
      * Always force the participant's
      * microphone OFF and show LOCKED.
      */
-
     if(signal.locked){
 
         if(localStream){
@@ -8501,19 +8727,44 @@ if(
         );
 
 
+        const lockedMicStatus =
+            document.getElementById(
+                "participantLocalMicStatus"
+            );
+
+
+        if(lockedMicStatus){
+
+            lockedMicStatus.innerHTML =
+                getMicSVG();
+
+            lockedMicStatus.classList.remove(
+                "on"
+            );
+
+            lockedMicStatus.classList.add(
+                "off"
+            );
+
+            lockedMicStatus.setAttribute(
+                "aria-label",
+                "Your microphone is off"
+            );
+
+        }
+
+
         console.log(
             "PARTICIPANT MICROPHONE LOCKED"
         );
 
         return;
-
     }
 
 
     /*
      * Normal microphone control.
      */
-
     if(!localStream){
 
         console.warn(
@@ -8521,7 +8772,6 @@ if(
         );
 
         return;
-
     }
 
 
@@ -8536,7 +8786,6 @@ if(
         );
 
         return;
-
     }
 
 
@@ -8560,6 +8809,37 @@ if(
     );
 
 
+    const localMicStatus =
+        document.getElementById(
+            "participantLocalMicStatus"
+        );
+
+
+    if(localMicStatus){
+
+        localMicStatus.innerHTML =
+            getMicSVG();
+
+        localMicStatus.classList.toggle(
+            "on",
+            signal.enabled === true
+        );
+
+        localMicStatus.classList.toggle(
+            "off",
+            signal.enabled !== true
+        );
+
+        localMicStatus.setAttribute(
+            "aria-label",
+            signal.enabled === true
+                ? "Your microphone is on"
+                : "Your microphone is off"
+        );
+
+    }
+
+
     console.log(
         "PARTICIPANT MICROPHONE CONTROL:",
         signal.enabled,
@@ -8570,7 +8850,6 @@ if(
 }
 
         return;
-
     }
 
 
@@ -9980,6 +10259,34 @@ function attachLocalParticipantVideo(){
     const audioTracks =
         localStream.getAudioTracks();
 
+
+    const localCameraStatus =
+        document.getElementById(
+            "participantLocalCameraStatus"
+        );
+
+    const localMicStatus =
+        document.getElementById(
+            "participantLocalMicStatus"
+        );
+
+
+    if(localCameraStatus){
+
+        localCameraStatus.innerHTML =
+            getCameraSVG();
+
+    }
+
+
+    if(localMicStatus){
+
+        localMicStatus.innerHTML =
+            getMicSVG();
+
+    }
+
+
     if(videoTracks.length){
 
         const cameraOn =
@@ -9993,7 +10300,30 @@ function attachLocalParticipantVideo(){
         cameraButtonParticipant.textContent =
             "📹 Camera";
 
+
+        if(localCameraStatus){
+
+            localCameraStatus.classList.toggle(
+                "on",
+                cameraOn
+            );
+
+            localCameraStatus.classList.toggle(
+                "off",
+                !cameraOn
+            );
+
+            localCameraStatus.setAttribute(
+                "aria-label",
+                cameraOn
+                    ? "Your camera is on"
+                    : "Your camera is off"
+            );
+
+        }
+
     }
+
 
     if(audioTracks.length){
 
@@ -10007,6 +10337,28 @@ function attachLocalParticipantVideo(){
 
         micButtonParticipant.textContent =
             "🎤 Mic";
+
+
+        if(localMicStatus){
+
+            localMicStatus.classList.toggle(
+                "on",
+                micOn
+            );
+
+            localMicStatus.classList.toggle(
+                "off",
+                !micOn
+            );
+
+            localMicStatus.setAttribute(
+                "aria-label",
+                micOn
+                    ? "Your microphone is on"
+                    : "Your microphone is off"
+            );
+
+        }
 
     }
 
@@ -13994,7 +14346,6 @@ micButtonParticipant.addEventListener(
          *
          * The database must authorize the change first.
          */
-
         const requestedMicOn =
             !tracks[0].enabled;
 
@@ -14063,6 +14414,37 @@ micButtonParticipant.addEventListener(
         );
 
 
+        const localMicStatus =
+            document.getElementById(
+                "participantLocalMicStatus"
+            );
+
+
+        if(localMicStatus){
+
+            localMicStatus.innerHTML =
+                getMicSVG();
+
+            localMicStatus.classList.toggle(
+                "on",
+                requestedMicOn
+            );
+
+            localMicStatus.classList.toggle(
+                "off",
+                !requestedMicOn
+            );
+
+            localMicStatus.setAttribute(
+                "aria-label",
+                requestedMicOn
+                    ? "Your microphone is on"
+                    : "Your microphone is off"
+            );
+
+        }
+
+
         console.log(
             "Secure participant microphone change:",
             requestedMicOn
@@ -14096,7 +14478,6 @@ cameraButtonParticipant.addEventListener(
             );
 
             return;
-
         }
 
 
@@ -14115,7 +14496,6 @@ cameraButtonParticipant.addEventListener(
             );
 
             return;
-
         }
 
 
@@ -14126,7 +14506,6 @@ cameraButtonParticipant.addEventListener(
         if(!tracks.length){
 
             return;
-
         }
 
 
@@ -14168,7 +14547,6 @@ cameraButtonParticipant.addEventListener(
             );
 
             return;
-
         }
 
 
@@ -14209,6 +14587,37 @@ cameraButtonParticipant.addEventListener(
             "active",
             requestedCameraOn
         );
+
+
+        const localCameraStatus =
+            document.getElementById(
+                "participantLocalCameraStatus"
+            );
+
+
+        if(localCameraStatus){
+
+            localCameraStatus.innerHTML =
+                getCameraSVG();
+
+            localCameraStatus.classList.toggle(
+                "on",
+                requestedCameraOn
+            );
+
+            localCameraStatus.classList.toggle(
+                "off",
+                !requestedCameraOn
+            );
+
+            localCameraStatus.setAttribute(
+                "aria-label",
+                requestedCameraOn
+                    ? "Your camera is on"
+                    : "Your camera is off"
+            );
+
+        }
 
 
         console.log(
