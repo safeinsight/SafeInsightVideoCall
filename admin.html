@@ -5015,6 +5015,72 @@ async function sendWebRTCSignal(
 }
 
 
+/*
+ * VIDEO CALL V2 — APPROVED PARTICIPANT ROSTER
+ *
+ * The Administrator already owns the approved conference roster.
+ * Publish only that existing fact to admitted Participant browsers
+ * so they know which other approved Participants belong in the
+ * four-person call.
+ *
+ * refreshParticipantId is supplied when a Participant browser has
+ * just announced participant-ready. Other Participants can then
+ * replace a stale WebRTC transport belonging to that Participant's
+ * previous browser instance without changing conference authority.
+ */
+async function broadcastApprovedParticipantRoster(
+    refreshParticipantId = null
+){
+
+    if(
+        !isAdministrator ||
+        !webRTCSignalingReady
+    ){
+        return;
+    }
+
+
+    await sendWebRTCSignal({
+
+        type:
+            "participant-roster",
+
+        senderId:
+            administratorViewerId,
+
+        targetId:
+            "participants",
+
+        refreshParticipantId:
+            refreshParticipantId,
+
+        participants:
+            participants.map(
+                participant => ({
+
+                    id:
+                        participant.id,
+
+                    name:
+                        participant.name,
+
+                    cameraOn:
+                        participant.cameraOn,
+
+                    micOn:
+                        participant.micOn,
+
+                    micLocked:
+                        participant.micLocked
+
+                })
+            )
+
+    });
+
+}
+
+
 /* =========================================================
    WEBRTC SIGNALING CHANNEL
 ========================================================= */
@@ -8087,6 +8153,22 @@ async function handleAdminWebRTCSignal(
         });
 
 
+        /*
+         * VIDEO CALL V2 — PARTICIPANT MESH DISCOVERY
+         *
+         * participant-ready also proves that this Participant's
+         * current browser is now listening to conference signaling.
+         *
+         * Re-broadcast the approved roster to all Participants.
+         * refreshParticipantId tells existing peers to discard any
+         * transport belonging to this Participant's previous browser
+         * instance before reconnecting.
+         */
+        await broadcastApprovedParticipantRoster(
+            participantId
+        );
+
+
         return;
 
     }
@@ -10772,6 +10854,20 @@ function renderParticipants(){
 
     participantList.innerHTML =
         "<strong>Participants</strong>";
+
+
+    /*
+     * VIDEO CALL V2
+     *
+     * Whenever the Administrator's approved Participant state is
+     * refreshed, publish the same roster to admitted Participant
+     * browsers.
+     *
+     * This also publishes an empty roster when the final Participant
+     * leaves so stale Participant-to-Participant connections can be
+     * removed immediately.
+     */
+    broadcastApprovedParticipantRoster();
 
 
     if(participants.length === 0){
