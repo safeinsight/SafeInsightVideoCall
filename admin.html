@@ -8123,17 +8123,16 @@ async function handleAdminWebRTCSignal(
          * participant-ready means this participant browser is now
          * actively listening to conference signaling.
          *
-         * The Administrator owns the authoritative camera state.
-         * Report the CURRENT state directly to this participant so
-         * a late join never has to wait for the Administrator to
-         * toggle the camera before its Administrator tile is correct.
+         * The Administrator owns the authoritative camera and
+         * microphone states. Report BOTH current states directly to
+         * this participant so a late join never has to wait for the
+         * Administrator to toggle either control before its
+         * Administrator tile is correct.
          *
          * Camera ON  -> Administrator video
          * Camera OFF -> Safe Insight logo
          *
-         * This is intentionally targeted only to the participant
-         * that just announced readiness. Existing participants
-         * already received the state when it last changed.
+         * Media indicators use these same explicit state reports.
          */
 
         await sendWebRTCSignal({
@@ -8149,6 +8148,23 @@ async function handleAdminWebRTCSignal(
 
             cameraOn:
                 administratorCameraOn
+
+        });
+
+
+        await sendWebRTCSignal({
+
+            type:
+                "administrator-microphone-state",
+
+            senderId:
+                administratorViewerId,
+
+            targetId:
+                participantId,
+
+            micOn:
+                administratorMicOn
 
         });
 
@@ -10311,6 +10327,37 @@ micButton.addEventListener(
         await synchronizeAdministratorMicrophoneToAuditors();
 
 
+        /*
+         * VIDEO CALL V2 — REPORT AUTHORITATIVE MICROPHONE STATE
+         *
+         * Participants display this explicit Administrator-owned
+         * state rather than inferring microphone intent from WebRTC.
+         */
+
+        for(
+            const participant of
+            participants
+        ){
+
+            await sendWebRTCSignal({
+
+                type:
+                    "administrator-microphone-state",
+
+                senderId:
+                    administratorViewerId,
+
+                targetId:
+                    participant.id,
+
+                micOn:
+                    administratorMicOn
+
+            });
+
+        }
+
+
         updateAdministratorMicButton();
 
         updateAdministratorMicStatus();
@@ -10358,6 +10405,35 @@ async function requestAdministratorMedia(){
          */
 
         await synchronizeAdministratorMicrophoneToAuditors();
+
+
+        /*
+         * Report the newly established authoritative microphone
+         * state to every active Video Call Participant.
+         */
+
+        for(
+            const participant of
+            participants
+        ){
+
+            await sendWebRTCSignal({
+
+                type:
+                    "administrator-microphone-state",
+
+                senderId:
+                    administratorViewerId,
+
+                targetId:
+                    participant.id,
+
+                micOn:
+                    administratorMicOn
+
+            });
+
+        }
 
 
         updateAdministratorMicButton();
